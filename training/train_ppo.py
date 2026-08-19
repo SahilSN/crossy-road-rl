@@ -14,9 +14,9 @@ model = PPO(
 )
 
 model.learn(
-    total_timesteps=100_000
+    total_timesteps=200_000
 )
 
-model.save("results/ppo_basic")
+model.save("results/ppo_basic_v1")
 
 print("Saved model to results/ppo_basic.zip")
