@@ -7,6 +7,13 @@ from stable_baselines3 import PPO, DQN, A2C
 from sb3_contrib import QRDQN, TRPO
 
 from crossyroad_rl.env import CrossyRoadEnv
+from crossyroad_rl.env_v4 import CrossyRoadEnvV4
+
+
+ENVIRONMENTS = {
+    "v3": CrossyRoadEnv,
+    "v4": CrossyRoadEnvV4,
+}
 
 
 ALGORITHMS = {
@@ -48,6 +55,7 @@ def read_run_metadata(run_dir):
 
 
 def evaluate_model(
+    env_name,
     algorithm,
     seed,
     checkpoint_steps,
@@ -57,7 +65,9 @@ def evaluate_model(
 ):
     model_class = ALGORITHMS[algorithm]
 
-    env = CrossyRoadEnv()
+    env_class = ENVIRONMENTS[env_name]
+    env = env_class()
+
     model = model_class.load(str(model_path))
 
     successes = 0
@@ -140,6 +150,7 @@ def evaluate_model(
     )
 
     return {
+        "environment": env_name,
         "algorithm": algorithm,
         "training_seed": seed,
         "checkpoint_steps": checkpoint_steps,
@@ -179,6 +190,13 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
+        "--env",
+        choices=["v3", "v4"],
+        default="v3",
+        help="Environment version used for evaluation.",
+    )
+
+    parser.add_argument(
         "--algorithm",
         required=True,
         choices=["ppo", "dqn", "qrdqn", "a2c", "trpo"],
@@ -208,7 +226,11 @@ def main():
         run_name = f"qrdqn_50q_seed{args.seed}"
     else:
         run_name = f"{args.algorithm}_seed{args.seed}"
-    run_dir = Path("results/runs") / run_name
+    if args.env == "v3":
+        # Preserve compatibility with existing v3 runs.
+        run_dir = Path("results/runs") / run_name
+    else:
+        run_dir = Path("results/runs") / args.env / run_name
 
     metadata = read_run_metadata(run_dir)
 
@@ -260,6 +282,7 @@ def main():
         )
 
         result = evaluate_model(
+            env_name=args.env,
             algorithm=args.algorithm,
             seed=args.seed,
             checkpoint_steps=steps,

@@ -9,6 +9,13 @@ from stable_baselines3.common.monitor import Monitor
 from sb3_contrib import QRDQN, TRPO
 
 from crossyroad_rl.env import CrossyRoadEnv
+from crossyroad_rl.env_v4 import CrossyRoadEnvV4
+
+
+ENVIRONMENTS = {
+    "v3": CrossyRoadEnv,
+    "v4": CrossyRoadEnvV4,
+}
 
 
 ALGORITHMS = {
@@ -97,6 +104,13 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
+        "--env",
+        choices=["v3", "v4"],
+        default="v3",
+        help="Environment version to train on.",
+    )
+
+    parser.add_argument(
         "--algorithm",
         choices=["ppo", "dqn", "qrdqn", "a2c", "trpo"],
         required=True,
@@ -127,13 +141,18 @@ def main():
     else:
         run_name = f"{args.algorithm}_seed{args.seed}"
 
-    run_dir = Path("results/runs") / run_name
+    if args.env == "v3":
+        # Preserve the existing v3 directory layout.
+        run_dir = Path("results/runs") / run_name
+    else:
+        run_dir = Path("results/runs") / args.env / run_name
     checkpoint_dir = run_dir / "checkpoints"
 
     run_dir.mkdir(parents=True, exist_ok=True)
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
-    env = CrossyRoadEnv()
+    env_class = ENVIRONMENTS[args.env]
+    env = env_class()
 
     env = Monitor(
         env,
@@ -171,6 +190,7 @@ def main():
         writer = csv.DictWriter(
             f,
             fieldnames=[
+                "environment",
                 "algorithm",
                 "seed",
                 "timesteps",
@@ -183,6 +203,7 @@ def main():
         writer.writeheader()
 
         writer.writerow({
+            "environment": args.env,
             "algorithm": args.algorithm,
             "seed": args.seed,
             "timesteps": args.timesteps,
@@ -193,6 +214,7 @@ def main():
 
     print()
     print("=== Run complete ===")
+    print(f"Environment: {args.env}")
     print(f"Algorithm: {args.algorithm}")
     print(f"Seed: {args.seed}")
     print(f"Timesteps: {args.timesteps}")

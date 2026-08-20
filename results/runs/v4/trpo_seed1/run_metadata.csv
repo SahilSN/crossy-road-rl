@@ -1,0 +1,2 @@
+environment,algorithm,seed,timesteps,checkpoint_freq,wall_time_seconds,model_path
+v4,trpo,1,1000000,200000,256.238936166279,results/runs/v4/trpo_seed1/final_model
