@@ -3,8 +3,8 @@ import csv
 from collections import Counter
 from pathlib import Path
 
-from stable_baselines3 import PPO, DQN
-from sb3_contrib import QRDQN
+from stable_baselines3 import PPO, DQN, A2C
+from sb3_contrib import QRDQN, TRPO
 
 from crossyroad_rl.env import CrossyRoadEnv
 
@@ -13,6 +13,8 @@ ALGORITHMS = {
     "ppo": PPO,
     "dqn": DQN,
     "qrdqn": QRDQN,
+    "a2c": A2C,
+    "trpo": TRPO,
 }
 
 ACTION_NAMES = {
@@ -179,7 +181,7 @@ def main():
     parser.add_argument(
         "--algorithm",
         required=True,
-        choices=["ppo", "dqn", "qrdqn"],
+        choices=["ppo", "dqn", "qrdqn", "a2c", "trpo"],
     )
 
     parser.add_argument(

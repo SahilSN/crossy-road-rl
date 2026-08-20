@@ -3,10 +3,10 @@ import csv
 import time
 from pathlib import Path
 
-from stable_baselines3 import PPO, DQN
+from stable_baselines3 import PPO, DQN, A2C
 from stable_baselines3.common.callbacks import CheckpointCallback
 from stable_baselines3.common.monitor import Monitor
-from sb3_contrib import QRDQN
+from sb3_contrib import QRDQN, TRPO
 
 from crossyroad_rl.env import CrossyRoadEnv
 
@@ -15,6 +15,8 @@ ALGORITHMS = {
     "ppo": PPO,
     "dqn": DQN,
     "qrdqn": QRDQN,
+    "a2c": A2C,
+    "trpo": TRPO,
 }
 
 
@@ -23,6 +25,26 @@ def build_model(algorithm, env, seed):
         return PPO(
             "MlpPolicy",
             env,
+            seed=seed,
+            verbose=1,
+        )
+
+    if algorithm == "a2c":
+        return A2C(
+            "MlpPolicy",
+            env,
+            learning_rate=7e-4,
+            gamma=0.99,
+            seed=seed,
+            verbose=1,
+        )
+
+    if algorithm == "trpo":
+        return TRPO(
+            "MlpPolicy",
+            env,
+            learning_rate=1e-3,
+            gamma=0.99,
             seed=seed,
             verbose=1,
         )
@@ -76,7 +98,7 @@ def main():
 
     parser.add_argument(
         "--algorithm",
-        choices=["ppo", "dqn", "qrdqn"],
+        choices=["ppo", "dqn", "qrdqn", "a2c", "trpo"],
         required=True,
     )
 

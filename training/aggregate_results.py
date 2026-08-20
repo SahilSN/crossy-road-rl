@@ -10,6 +10,8 @@ official_patterns = [
     "ppo_seed*/evaluation.csv",
     "dqn_seed*/evaluation.csv",
     "qrdqn_50q_seed*/evaluation.csv",
+    "a2c_seed*/evaluation.csv",
+    "trpo_seed*/evaluation.csv",
 ]
 
 for pattern in official_patterns:
