@@ -1,0 +1,2 @@
+algorithm,training_seed,checkpoint_steps,evaluation_episodes,eval_seed_start,successes,success_rate,collisions,collision_rate,timeouts,timeout_rate,avg_reward,avg_episode_length,avg_max_row,avg_success_episode_length,avg_failure_episode_length,wait_pct,forward_pct,backward_pct,left_pct,right_pct,collision_row_1,collision_row_3,model_path
+ppo,98,200000,100,1000,19,0.19,81,0.81,0,0.0,2.651300000000001,2.87,2.54,5.368421052631579,2.2839506172839505,0.0,0.8850174216027874,0.11498257839721254,0.0,0.0,42,39,results/runs/ppo_seed98/final_model

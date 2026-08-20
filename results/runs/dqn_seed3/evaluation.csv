@@ -1,0 +1,6 @@
+algorithm,training_seed,checkpoint_steps,evaluation_episodes,eval_seed_start,successes,success_rate,collisions,collision_rate,timeouts,timeout_rate,avg_reward,avg_episode_length,avg_max_row,avg_success_episode_length,avg_failure_episode_length,wait_pct,forward_pct,backward_pct,left_pct,right_pct,collision_row_1,collision_row_3,model_path
+dqn,3,200000,100,1000,0,0.0,0,0.0,100,1.0,-5.5,50.0,0.0,0.0,50.0,0.0476,0.0,0.088,0.0,0.8644,0,0,results/runs/dqn_seed3/checkpoints/dqn_seed3_200000_steps
+dqn,3,400000,100,1000,0,0.0,0,0.0,100,1.0,-5.5,50.0,0.0,0.0,50.0,0.3646,0.0,0.6138,0.0214,0.0002,0,0,results/runs/dqn_seed3/checkpoints/dqn_seed3_400000_steps
+dqn,3,600000,100,1000,0,0.0,0,0.0,100,1.0,-5.5,50.0,0.0,0.0,50.0,0.929,0.0,0.0022,0.0,0.0688,0,0,results/runs/dqn_seed3/checkpoints/dqn_seed3_600000_steps
+dqn,3,800000,100,1000,0,0.0,0,0.0,100,1.0,-5.5,50.0,0.0,0.0,50.0,0.657,0.0,0.0024,0.0,0.3406,0,0,results/runs/dqn_seed3/checkpoints/dqn_seed3_800000_steps
+dqn,3,1000000,100,1000,0,0.0,0,0.0,100,1.0,-5.5,50.0,0.0,0.0,50.0,0.0218,0.0,0.0462,0.0,0.932,0,0,results/runs/dqn_seed3/final_model
