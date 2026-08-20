@@ -20,7 +20,7 @@ class CrossyRoadEnv(gym.Env):
 
         self.grid_width = 7
         self.goal_y = 5
-        self.max_steps = 200
+        self.max_steps = 50
 
         # Each agent action advances the simulation through several
         # smaller physics steps.
@@ -32,7 +32,7 @@ class CrossyRoadEnv(gym.Env):
         # Observation:
         # player_x, player_y,
         # then x + speed for each car on both road lanes.
-        obs_size = 2 + (2 * self.cars_per_lane * 2)
+        obs_size = 3 + (2 * self.cars_per_lane * 2)
 
         self.observation_space = spaces.Box(
             low=-np.inf,
@@ -90,6 +90,10 @@ class CrossyRoadEnv(gym.Env):
 
         if success:
             reward += 5.0
+
+        # Strongly discourage policies that simply stall until timeout.
+        if truncated and not terminated:
+            reward -= 5.0
 
         info = {
             "max_y": self.max_y,
@@ -200,9 +204,12 @@ class CrossyRoadEnv(gym.Env):
         return False
 
     def _get_observation(self):
+        time_remaining = 1.0 - (self.steps / self.max_steps)
+
         obs = [
             self.player_x,
             float(self.player_y),
+            float(time_remaining),
         ]
 
         for lane_y in [1, 3]:
