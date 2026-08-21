@@ -10,11 +10,13 @@ from sb3_contrib import QRDQN, TRPO
 
 from crossyroad_rl.env import CrossyRoadEnv
 from crossyroad_rl.env_v4 import CrossyRoadEnvV4
+from crossyroad_rl.env_v5 import CrossyRoadEnvV5
 
 
 ENVIRONMENTS = {
     "v3": CrossyRoadEnv,
     "v4": CrossyRoadEnvV4,
+    "v5": CrossyRoadEnvV5,
 }
 
 
@@ -105,7 +107,7 @@ def main():
 
     parser.add_argument(
         "--env",
-        choices=["v3", "v4"],
+        choices=["v3", "v4", "v5"],
         default="v3",
         help="Environment version to train on.",
     )

@@ -1,0 +1,155 @@
+from gymnasium import spaces
+import numpy as np
+
+from crossyroad_rl.env_v4 import CrossyRoadEnvV4
+
+
+class CrossyRoadEnvV5(CrossyRoadEnvV4):
+    """
+    Crossy Road RL - Environment v5
+
+    Same underlying world dynamics as v4, but partially observable.
+
+    The agent sees:
+      - player_x
+      - player_y
+      - time_remaining
+
+    plus only the local row window:
+      player_y - 1
+      player_y
+      player_y + 1
+      player_y + 2
+
+    For each visible row:
+      - is_road
+      - up to 4 car slots:
+          car_x
+          car_speed
+          active
+
+    Traffic outside this local window is hidden.
+
+    This intentionally changes observation availability ONLY.
+    Traffic generation, rewards, physics, collisions, and episode
+    limits are inherited directly from v4.
+    """
+
+    def __init__(self):
+        super().__init__()
+
+        # Relative rows visible to the agent.
+        self.visible_row_offsets = (-1, 0, 1, 2)
+
+        # Observation:
+        #
+        # player:
+        #   x
+        #   y
+        #   time_remaining
+        #
+        # 4 visible rows, each containing:
+        #   is_road
+        #   4 * (car_x, car_speed, active)
+        #
+        # = 3 + 4 * (1 + 4*3)
+        # = 55
+        self.obs_size = (
+            3
+            + len(self.visible_row_offsets)
+            * (
+                1
+                + self.max_cars_per_lane * 3
+            )
+        )
+
+        low = [
+            0.0,    # player_x
+            0.0,    # player_y
+            0.0,    # time_remaining
+        ]
+
+        high = [
+            float(self.grid_width - 1),
+            float(self.goal_y),
+            1.0,
+        ]
+
+        for _ in self.visible_row_offsets:
+            # is_road
+            low.append(0.0)
+            high.append(1.0)
+
+            for _ in range(self.max_cars_per_lane):
+                low.extend([
+                    -1.0,   # car_x; -1 = inactive
+                    -1.5,   # car_speed
+                    0.0,    # active
+                ])
+
+                high.extend([
+                    float(self.grid_width),
+                    1.5,
+                    1.0,
+                ])
+
+        self.observation_space = spaces.Box(
+            low=np.array(low, dtype=np.float32),
+            high=np.array(high, dtype=np.float32),
+            dtype=np.float32,
+        )
+
+    def _get_observation(self):
+        time_remaining = (
+            1.0
+            - self.steps / self.max_steps
+        )
+
+        time_remaining = max(
+            0.0,
+            time_remaining,
+        )
+
+        obs = [
+            float(self.player_x),
+            float(self.player_y),
+            float(time_remaining),
+        ]
+
+        for offset in self.visible_row_offsets:
+            row = self.player_y + offset
+
+            is_road = row in self.road_rows
+
+            obs.append(
+                1.0 if is_road else 0.0
+            )
+
+            if is_road:
+                cars = self.lanes[row]
+            else:
+                cars = []
+
+            for slot in range(
+                self.max_cars_per_lane
+            ):
+                if slot < len(cars):
+                    car = cars[slot]
+
+                    obs.extend([
+                        float(car["x"]),
+                        float(car["speed"]),
+                        1.0,
+                    ])
+
+                else:
+                    obs.extend([
+                        -1.0,
+                        0.0,
+                        0.0,
+                    ])
+
+        return np.array(
+            obs,
+            dtype=np.float32,
+        )

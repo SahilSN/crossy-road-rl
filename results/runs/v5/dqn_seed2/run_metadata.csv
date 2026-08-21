@@ -1,0 +1,2 @@
+environment,algorithm,seed,timesteps,checkpoint_freq,wall_time_seconds,model_path
+v5,dqn,2,1000000,200000,292.58648933283985,results/runs/v5/dqn_seed2/final_model
