@@ -1,0 +1,2 @@
+environment,algorithm,config,seed,timesteps,learning_rate,ent_coef,wall_time_seconds,model_path
+v6_local1,recurrent_ppo,baseline,0,400000,0.0003,0.0,1125.8246369580738,results/runs/v6_local1_recurrent_tuning/recurrent_ppo_baseline_seed0/final_model.zip

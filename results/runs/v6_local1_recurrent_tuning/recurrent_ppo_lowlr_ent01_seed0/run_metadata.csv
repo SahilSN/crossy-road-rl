@@ -1,0 +1,2 @@
+environment,algorithm,config,seed,timesteps,learning_rate,ent_coef,wall_time_seconds,model_path
+v6_local1,recurrent_ppo,lowlr_ent01,0,400000,0.0001,0.01,799.6439475002699,results/runs/v6_local1_recurrent_tuning/recurrent_ppo_lowlr_ent01_seed0/final_model.zip

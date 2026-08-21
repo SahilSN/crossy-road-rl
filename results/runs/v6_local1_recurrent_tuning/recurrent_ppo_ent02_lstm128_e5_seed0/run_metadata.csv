@@ -1,0 +1,2 @@
+environment,algorithm,config,seed,timesteps,learning_rate,ent_coef,lstm_hidden_size,n_epochs,wall_time_seconds,model_path
+v6_local1,recurrent_ppo,ent02_lstm128_e5,0,200000,0.0003,0.02,128,5,176.05472700018436,results/runs/v6_local1_recurrent_tuning/recurrent_ppo_ent02_lstm128_e5_seed0/final_model.zip

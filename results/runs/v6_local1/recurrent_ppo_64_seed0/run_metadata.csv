@@ -1,0 +1,2 @@
+environment,algorithm,config,seed,timesteps,checkpoint_freq,learning_rate,ent_coef,gamma,lstm_hidden_size,n_epochs,wall_time_seconds,model_path
+v6_local1,recurrent_ppo,lstm64_ent02,0,1000000,200000,0.0003,0.02,0.99,64,10,1232.3608334581368,results/runs/v6_local1/recurrent_ppo_64_seed0/final_model.zip

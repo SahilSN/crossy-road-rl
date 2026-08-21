@@ -1,0 +1,2 @@
+episodes,successes,success_rate,collisions,collision_rate,timeouts,timeout_rate,avg_reward,avg_episode_length,avg_max_row,wait_pct,forward_pct,backward_pct,left_pct,right_pct,environment,algorithm,config,training_seed,checkpoint_steps
+100,7,0.07,93,0.93,0,0.0,4.0991,6.09,4.74,0.10180623973727422,0.7783251231527094,0.11986863711001643,0.0,0.0,v6_local1,recurrent_ppo,ent02_lstm64,0,200000
