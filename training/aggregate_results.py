@@ -69,6 +69,28 @@ for pattern in v5_patterns:
 
         rows.append(df)
 
+
+# ------------------------------------------------------------
+# V6 observation-horizon benchmark runs
+# ------------------------------------------------------------
+
+v6_patterns = [
+    "ppo_seed*/evaluation.csv",
+    "dqn_seed*/evaluation.csv",
+    "qrdqn_50q_seed*/evaluation.csv",
+    "trpo_seed*/evaluation.csv",
+]
+
+for environment in ["v6_local1", "v6_local3"]:
+    for pattern in v6_patterns:
+        for path in (Path("results/runs") / environment).glob(pattern):
+            df = pd.read_csv(path)
+
+            if "environment" not in df.columns:
+                df["environment"] = environment
+
+            rows.append(df)
+
 if not rows:
     raise SystemExit("No official evaluation.csv files found.")
 

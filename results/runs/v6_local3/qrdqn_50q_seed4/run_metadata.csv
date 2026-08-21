@@ -1,0 +1,2 @@
+environment,algorithm,seed,timesteps,checkpoint_freq,wall_time_seconds,model_path
+v6_local3,qrdqn,4,1000000,200000,688.9226337913424,results/runs/v6_local3/qrdqn_50q_seed4/final_model
