@@ -80,11 +80,18 @@ def evaluate_model(
     model_path,
     num_episodes,
     eval_seed_start,
+    speed_scale=1.0,
 ):
     model_class = ALGORITHMS[algorithm]
 
     env_class = ENVIRONMENTS[env_name]
-    env = env_class()
+
+    if env_name == "v9":
+        env = env_class(
+            speed_scale=speed_scale
+        )
+    else:
+        env = env_class()
 
     model = model_class.load(str(model_path))
 
@@ -255,6 +262,16 @@ def main():
         default=1000,
     )
 
+    parser.add_argument(
+        "--speed-scale",
+        type=float,
+        default=1.0,
+        help=(
+            "Evaluation-time hazard speed multiplier for v9. "
+            "Default 1.0 preserves the training distribution."
+        ),
+    )
+
     args = parser.parse_args()
 
     if args.algorithm == "qrdqn":
@@ -324,6 +341,7 @@ def main():
             model_path=model_path,
             num_episodes=args.episodes,
             eval_seed_start=args.eval_seed_start,
+            speed_scale=args.speed_scale,
         )
 
         rows.append(result)
@@ -338,7 +356,14 @@ def main():
     if not rows:
         raise SystemExit("No checkpoints found.")
 
-    output_path = run_dir / "evaluation.csv"
+    if args.env == "v9" and args.speed_scale != 1.0:
+        speed_tag = str(args.speed_scale).replace(".", "p")
+        output_path = (
+            run_dir
+            / f"evaluation_speed_{speed_tag}.csv"
+        )
+    else:
+        output_path = run_dir / "evaluation.csv"
 
     with output_path.open("w", newline="") as f:
         writer = csv.DictWriter(

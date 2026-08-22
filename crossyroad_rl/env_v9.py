@@ -30,8 +30,13 @@ class CrossyRoadEnvV9(CrossyRoadEnvV8):
       2 = river
     """
 
-    def __init__(self):
+    def __init__(self, speed_scale=1.0):
         super().__init__()
+
+        self.speed_scale = float(speed_scale)
+
+        if self.speed_scale <= 0:
+            raise ValueError('speed_scale must be > 0')
 
         self.candidate_hazard_rows = tuple(
             range(1, self.goal_y)
@@ -360,6 +365,7 @@ class CrossyRoadEnvV9(CrossyRoadEnvV8):
         speed = (
             direction
             * speed_magnitude
+            * self.speed_scale
         )
 
         spacing = (
@@ -416,6 +422,7 @@ class CrossyRoadEnvV9(CrossyRoadEnvV8):
         speed = (
             direction
             * speed_magnitude
+            * self.speed_scale
         )
 
         spacing = (
