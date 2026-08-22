@@ -1,0 +1,2 @@
+environment,algorithm,seed,timesteps,checkpoint_freq,wall_time_seconds,model_path
+v8,ppo,0,1000000,200000,414.41489287512377,results/runs/v8/ppo_seed0/final_model

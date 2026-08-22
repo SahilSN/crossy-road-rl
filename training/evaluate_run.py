@@ -11,6 +11,7 @@ from crossyroad_rl.env_v4 import CrossyRoadEnvV4
 from crossyroad_rl.env_v5 import CrossyRoadEnvV5
 from crossyroad_rl.env_v6 import CrossyRoadEnvV6
 from crossyroad_rl.env_v7 import CrossyRoadEnvV7
+from crossyroad_rl.env_v8 import CrossyRoadEnvV8
 
 
 ENVIRONMENTS = {
@@ -27,6 +28,7 @@ ENVIRONMENTS = {
     ),
 
     "v7": CrossyRoadEnvV7,
+    "v8": CrossyRoadEnvV8,
 }
 
 
@@ -88,6 +90,11 @@ def evaluate_model(
     collisions = 0
     timeouts = 0
 
+    # V8-specific hazard breakdown.
+    # These remain zero for earlier environments.
+    road_collisions = 0
+    drownings = 0
+
     total_reward = 0.0
     total_steps = 0
     max_rows = []
@@ -140,6 +147,12 @@ def evaluate_model(
                 collisions += 1
                 collision_rows[env.player_y] += 1
 
+                if info.get("road_collision", False):
+                    road_collisions += 1
+
+                if info.get("drowned", False):
+                    drownings += 1
+
             elif truncated:
                 timeouts += 1
 
@@ -177,6 +190,12 @@ def evaluate_model(
         "collisions": collisions,
         "collision_rate": collisions / num_episodes,
 
+        "road_collisions": road_collisions,
+        "road_collision_rate": road_collisions / num_episodes,
+
+        "drownings": drownings,
+        "drowning_rate": drownings / num_episodes,
+
         "timeouts": timeouts,
         "timeout_rate": timeouts / num_episodes,
 
@@ -205,7 +224,7 @@ def main():
 
     parser.add_argument(
         "--env",
-        choices=["v3", "v4", "v5", "v6_local1", "v6_local3", "v7"],
+        choices=["v3", "v4", "v5", "v6_local1", "v6_local3", "v7", "v8"],
         default="v3",
         help="Environment version used for evaluation.",
     )
