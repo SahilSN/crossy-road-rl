@@ -1765,3 +1765,387 @@ Taken together, the experiments show that generalization depends strongly on the
 
 The policies are relatively tolerant to some within-support changes, but can degrade sharply when evaluation violates structural assumptions embedded in the training distribution.
 
+
+---
+
+# Final Benchmark Summary
+
+## 41. Overall Experimental Conclusions
+
+The benchmark evolved from a simple fixed Crossy Road-style task into a procedural mixed-mechanics environment designed to expose differences in learning, representation sensitivity, transfer, and robustness across reinforcement-learning algorithms.
+
+The central findings are summarized below.
+
+### Observation representation matters strongly
+
+The original global representation used in v4 produced poor performance across all tested algorithms.
+
+Replacing it with a local egocentric representation in v5 caused a large improvement:
+
+```text
+v4 -> v5 at 1M steps
+
+PPO       7.0% -> 79.8%
+TRPO      6.2% -> 94.0%
+DQN      10.2% -> 68.6%
+QR-DQN   12.0% -> 56.0%
+```
+
+The v6 observation-horizon study further showed that there is no universally optimal local horizon.
+
+Different algorithms prefer different amounts of nearby information.
+
+This suggests that observation design is an algorithm-dependent component of RL benchmark difficulty rather than a neutral implementation detail.
+
+---
+
+### Proceduralization is a major source of difficulty
+
+The transition from fixed to procedural environments repeatedly caused large performance drops.
+
+For road-only environments:
+
+```text
+v5 fixed roads -> v7 procedural roads
+```
+
+performance fell substantially for every algorithm.
+
+Likewise, for mixed mechanics:
+
+```text
+v8 fixed mixed -> v9 procedural mixed
+```
+
+success decreased sharply:
+
+```text
+PPO       94.0% -> 50.0%
+TRPO     100.0% -> 49.0%
+DQN       80.6% -> 46.4%
+QR-DQN    96.2% -> 33.6%
+```
+
+These results indicate that procedural variation is one of the strongest determinants of benchmark difficulty in this project.
+
+---
+
+### Mechanical diversity alone does not imply difficulty
+
+v8 introduced both road and river mechanics but remained relatively easy:
+
+```text
+PPO       94.0%
+TRPO     100.0%
+DQN       80.6%
+QR-DQN    96.2%
+```
+
+The difficulty emerged primarily after proceduralizing the mixed-mechanics environment in v9.
+
+Therefore:
+
+> Mechanical diversity and environmental complexity are not equivalent to learning difficulty.
+
+The structure and variability of the task matter at least as much as the number of mechanics.
+
+---
+
+### v9 provides the strongest balanced benchmark
+
+The final standard v9 results at 1M steps are:
+
+```text
+PPO       50.0% ± 7.6%
+TRPO      49.0% ± 6.8%
+DQN       46.4% ± 7.8%
+QR-DQN    33.6% ± 6.3%
+```
+
+Unlike v8, no algorithm saturates the environment.
+
+Unlike v7, value-based methods remain meaningfully competitive.
+
+The four algorithms occupy a useful performance range without any single method trivially solving the task.
+
+For this reason, v9 is the most useful final benchmark environment produced by the project.
+
+---
+
+### The algorithms exhibit different strengths
+
+No algorithm dominates every experiment.
+
+TRPO performs strongly in several fixed and procedural settings and remains comparatively robust in road-heavy conditions.
+
+PPO is competitive with TRPO on v9 and benefits from speed-domain randomization at higher evaluation speeds.
+
+DQN performs surprisingly well on several v9 conditions and achieves the highest success in the all-river composition shift, but its robustness benefits from speed-domain randomization are inconsistent.
+
+QR-DQN performs very strongly in several simpler environments but is the weakest algorithm on standard v9 and is particularly sensitive to road-heavy and clustered conditions.
+
+The benchmark therefore supports algorithm profiling rather than a single universal ranking.
+
+---
+
+### Recurrence did not improve PPO
+
+A recurrent PPO configuration was evaluated under the shorter local observation setting.
+
+Despite substantial training, recurrent PPO did not outperform the corresponding feed-forward PPO policy.
+
+At 1M steps:
+
+```text
+feed-forward PPO local1   49.0%
+recurrent PPO local1      18.8%
+```
+
+Within the tested setup, recurrence therefore did not compensate for reduced observable context.
+
+This negative result was retained rather than tuned away.
+
+---
+
+### Faster dynamics reduce performance
+
+Existing v9 policies were evaluated under hazard-speed multipliers without retraining.
+
+Performance remained relatively stable under slower dynamics but degraded as hazard speed increased beyond the training setting.
+
+For example:
+
+```text
+PPO
+1.0x    50.0%
+1.2x    38.6%
+1.4x    27.8%
+
+TRPO
+1.0x    49.0%
+1.2x    40.6%
+1.4x    28.6%
+```
+
+Similar trends occur for DQN and QR-DQN.
+
+The degradation is primarily associated with increased road collisions.
+
+---
+
+### Hazard composition strongly controls difficulty
+
+Composition experiments revealed a systematic road-versus-river asymmetry.
+
+Success decreases as the environment becomes increasingly road-dominated.
+
+At the two unseen composition endpoints:
+
+```text
+                  all river     all road
+
+PPO                  61.4%        26.0%
+TRPO                 62.2%        36.2%
+DQN                  78.0%        25.8%
+QR-DQN               55.0%        13.8%
+```
+
+Both endpoint compositions lie outside the standard v9 training support.
+
+Importantly, one unseen composition improves performance while the other degrades it.
+
+Therefore:
+
+> Out-of-distribution distance alone does not determine performance.
+
+The intrinsic difficulty of the shifted task must be separated from whether the condition was observed during training.
+
+---
+
+### Spatial structure is another important generalization dimension
+
+Standard v9 prevents more than two consecutive hazard rows.
+
+Policies were evaluated on a clustered condition containing four consecutive hazards.
+
+Success fell substantially:
+
+```text
+                  standard      clustered
+
+PPO                  50.0%          21.8%
+TRPO                 49.0%          26.2%
+DQN                  46.4%          22.2%
+QR-DQN               33.6%          17.0%
+```
+
+A fixed but structurally valid separated layout remained close to standard performance.
+
+This control indicates that the degradation is not caused simply by using a fixed layout.
+
+Instead, the policies are sensitive to spatial structures excluded from the training generator.
+
+---
+
+### Zero-shot transfer is strongly asymmetric
+
+Cross-environment evaluation between v8 and v9 showed:
+
+```text
+v8-trained -> v9
+
+PPO       11.0%
+TRPO      14.0%
+DQN        2.0%
+QR-DQN     0.8%
+```
+
+whereas v9-trained agents transferred much more effectively to v8:
+
+```text
+v9-trained -> v8
+
+PPO       70.2%
+TRPO      76.2%
+DQN       76.0%
+QR-DQN    53.4%
+```
+
+Because v8 is substantially easier than v9, these values should not be interpreted as improvement from transfer.
+
+The important conclusion is:
+
+> Training on a more variable procedural environment produces policies that remain useful on the simpler fixed environment, while policies trained only on the fixed environment specialize poorly to the procedural task.
+
+---
+
+### Speed domain randomization provides modest robustness gains
+
+v10 trains on per-episode speed scales sampled from:
+
+```text
+Uniform(0.8, 1.2)
+```
+
+Compared with standard v9 training, this improves robustness for several algorithms at faster evaluation speeds.
+
+At 1.4x speed, the change from v9 to v10 is:
+
+```text
+PPO       +2.0 pp
+TRPO      +2.6 pp
+DQN       -1.4 pp
+QR-DQN    +2.6 pp
+```
+
+The effect is therefore useful but modest and algorithm-dependent.
+
+Domain randomization does not eliminate degradation under faster dynamics.
+
+---
+
+## 42. Final Environment Progression
+
+The benchmark can be summarized as the following progression:
+
+```text
+v3
+simple fixed roads
+    |
+    v
+v4
+larger fixed environment + global observation
+    |
+    v
+v5
+local egocentric observation
+    |
+    +--> v6 observation-horizon ablation
+    |
+    v
+v7
+procedural roads
+
+v8
+fixed roads + rivers
+    |
+    v
+v9
+procedural roads + rivers
+    |
+    +--> speed shift
+    +--> composition shift
+    +--> unseen composition shift
+    +--> spatial-layout shift
+    +--> cross-environment transfer
+    |
+    v
+v10
+speed-domain-randomized training
+```
+
+This progression intentionally changes one major benchmark property at a time wherever possible.
+
+---
+
+## 43. What the Benchmark Demonstrates
+
+The project supports several broader conclusions.
+
+### 1. Representation can dominate algorithm choice
+
+A poor observation representation can suppress the performance of every tested algorithm.
+
+Improving the representation produced larger gains than changing algorithms within the original representation.
+
+### 2. Generalization is multidimensional
+
+A policy can generalize well along one dimension and poorly along another.
+
+Same-generator reset seeds, mechanic composition, dynamics, spatial structure, and cross-environment transfer measure meaningfully different properties.
+
+### 3. OOD performance must be interpreted relative to task difficulty
+
+The unseen all-river condition is easier than the training distribution, while the unseen all-road and clustered conditions are harder.
+
+Calling all of these conditions simply "OOD" hides important structure.
+
+### 4. Procedural training promotes broader policy reuse
+
+The v9-to-v8 transfer experiment suggests that learning under greater environmental diversity creates policies that retain useful behavior under simpler conditions.
+
+The reverse is much less successful.
+
+### 5. Negative results are informative
+
+The recurrent PPO experiment and the inconsistent DQN domain-randomization result were retained rather than repeatedly tuned until positive.
+
+This helps preserve the benchmark as an exploratory experimental record rather than an exercise in optimizing for a predetermined narrative.
+
+---
+
+## 44. Final Status
+
+The experimental phase of the project is considered complete.
+
+The repository contains:
+
+- the environment progression from v3 through v10;
+- PPO, TRPO, DQN, and QR-DQN training infrastructure;
+- multi-seed benchmark results;
+- recurrent-policy ablations;
+- observation-horizon experiments;
+- proceduralization experiments;
+- mixed-mechanics experiments;
+- dynamics and composition generalization tests;
+- spatial-layout generalization tests;
+- cross-environment transfer analysis;
+- speed-domain-randomization experiments;
+- aggregation scripts;
+- final result tables and figures.
+
+No additional benchmark variants are required for the current scope.
+
+Future work could extend the project with additional algorithms, curriculum learning, transfer fine-tuning, richer behavioral analysis, or more complex environments, but these are intentionally left outside the completed benchmark.
+
+The final project should therefore be treated as a controlled experimental study of how RL policies respond to increasing environmental structure, variability, and distribution shift in a compact Crossy Road-style domain.
