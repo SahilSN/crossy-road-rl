@@ -133,6 +133,27 @@ for pattern in v8_patterns:
 
         rows.append(df)
 
+
+# ------------------------------------------------------------
+# V9 procedural mixed-mechanics benchmark
+# ------------------------------------------------------------
+
+v9_patterns = [
+    "ppo_seed*/evaluation.csv",
+    "dqn_seed*/evaluation.csv",
+    "qrdqn_50q_seed*/evaluation.csv",
+    "trpo_seed*/evaluation.csv",
+]
+
+for pattern in v9_patterns:
+    for path in Path("results/runs/v9").glob(pattern):
+        df = pd.read_csv(path)
+
+        if "environment" not in df.columns:
+            df["environment"] = "v9"
+
+        rows.append(df)
+
 if not rows:
     raise SystemExit("No official evaluation.csv files found.")
 
