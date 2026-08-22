@@ -2,6 +2,10 @@
 
 A controlled reinforcement-learning benchmark for studying how algorithm performance changes as a simple Crossy Road-style environment is progressively modified.
 
+## Benchmark Analysis
+
+For a more detailed discussion of the experimental results and cross-environment findings, see [docs/benchmark_findings.md](docs/benchmark_findings.md).
+
 The project is designed around a sequence of environments that vary one or a small number of factors at a time, including:
 
 - environment difficulty,
