@@ -91,6 +91,27 @@ for environment in ["v6_local1", "v6_local3"]:
 
             rows.append(df)
 
+
+# ------------------------------------------------------------
+# V7 procedural-layout benchmark runs
+# ------------------------------------------------------------
+
+v7_patterns = [
+    "ppo_seed*/evaluation.csv",
+    "dqn_seed*/evaluation.csv",
+    "qrdqn_50q_seed*/evaluation.csv",
+    "trpo_seed*/evaluation.csv",
+]
+
+for pattern in v7_patterns:
+    for path in Path("results/runs/v7").glob(pattern):
+        df = pd.read_csv(path)
+
+        if "environment" not in df.columns:
+            df["environment"] = "v7"
+
+        rows.append(df)
+
 if not rows:
     raise SystemExit("No official evaluation.csv files found.")
 

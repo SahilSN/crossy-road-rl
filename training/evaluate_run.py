@@ -10,6 +10,7 @@ from crossyroad_rl.env import CrossyRoadEnv
 from crossyroad_rl.env_v4 import CrossyRoadEnvV4
 from crossyroad_rl.env_v5 import CrossyRoadEnvV5
 from crossyroad_rl.env_v6 import CrossyRoadEnvV6
+from crossyroad_rl.env_v7 import CrossyRoadEnvV7
 
 
 ENVIRONMENTS = {
@@ -24,6 +25,8 @@ ENVIRONMENTS = {
     "v6_local3": lambda: CrossyRoadEnvV6(
         observation_horizon=3
     ),
+
+    "v7": CrossyRoadEnvV7,
 }
 
 
@@ -202,7 +205,7 @@ def main():
 
     parser.add_argument(
         "--env",
-        choices=["v3", "v4", "v5", "v6_local1", "v6_local3"],
+        choices=["v3", "v4", "v5", "v6_local1", "v6_local3", "v7"],
         default="v3",
         help="Environment version used for evaluation.",
     )
