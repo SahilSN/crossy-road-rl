@@ -407,3 +407,331 @@ v7_vs_v9_procedural_mechanics.png
 v8_vs_v9_procedural_mixed.png
 v8_v9_failure_modes.png
 
+
+---
+
+# Distribution-Shift Robustness
+
+After completing the v9 procedural mixed-mechanics benchmark, we evaluated whether the trained policies remained effective when the evaluation environment differed systematically from the training distribution.
+
+All distribution-shift experiments use the existing v9 models trained under the standard environment. No retraining or fine-tuning is performed.
+
+The purpose is therefore to measure out-of-distribution robustness rather than adaptation.
+
+Two shift dimensions have been evaluated so far:
+
+1. hazard speed
+2. hazard composition
+
+---
+
+## 11. Evaluation-Time Hazard Speed Shift
+
+The first distribution-shift experiment modifies the speed of all moving hazards while keeping the rest of the v9 environment unchanged.
+
+The training distribution corresponds to:
+
+```text
+speed_scale = 1.0
+```
+
+Evaluation is performed at:
+
+```text
+0.8x
+1.0x
+1.2x
+1.4x
+```
+
+where the multiplier is applied to both:
+
+- road-car velocity
+- river-platform velocity
+
+The same five trained seeds for PPO, TRPO, DQN, and QR-DQN are evaluated under every condition.
+
+### Final 1M-step success rates
+
+| Algorithm | 0.8x | 1.0x | 1.2x | 1.4x |
+|---|---:|---:|---:|---:|
+| PPO | 49.0% ± 4.2% | 50.0% ± 7.6% | 38.6% ± 6.9% | 27.8% ± 5.8% |
+| TRPO | 48.4% ± 10.9% | 49.0% ± 6.8% | 40.6% ± 7.5% | 28.6% ± 6.2% |
+| DQN | 50.2% ± 9.7% | 46.4% ± 7.8% | 37.0% ± 4.9% | 31.0% ± 5.6% |
+| QR-DQN | 32.2% ± 3.3% | 33.6% ± 6.3% | 27.2% ± 8.2% | 27.0% ± 2.4% |
+
+### Main finding
+
+The robustness profile is asymmetric.
+
+Slower hazards produce little degradation:
+
+- PPO: 50.0% -> 49.0%
+- TRPO: 49.0% -> 48.4%
+- QR-DQN: 33.6% -> 32.2%
+- DQN improves from 46.4% to 50.2%
+
+Faster hazards produce a much larger performance drop.
+
+At 1.4x speed:
+
+- PPO falls to 27.8%
+- TRPO falls to 28.6%
+- DQN falls to 31.0%
+- QR-DQN falls to 27.0%
+
+This suggests that policies trained at the standard timing distribution tolerate slower dynamics relatively well, but are substantially less robust when the decision window becomes shorter.
+
+### Algorithm ranking under strong speed shift
+
+The standard v9 ranking is approximately:
+
+```text
+PPO ~= TRPO > DQN > QR-DQN
+```
+
+At 1.4x speed, the algorithms converge much more closely:
+
+```text
+DQN      31.0%
+TRPO     28.6%
+PPO      27.8%
+QR-DQN   27.0%
+```
+
+DQN therefore has the highest mean success rate under the strongest tested speed shift, despite not having the highest in-distribution performance.
+
+This suggests that in-distribution success and distribution-shift robustness are not necessarily aligned.
+
+---
+
+## 12. Failure Modes Under Speed Shift
+
+The speed-shift experiment was also analyzed by decomposing episode outcomes into:
+
+- success
+- road collision
+- drowning
+- timeout
+
+The dominant change under faster speeds is an increase in road-collision failures.
+
+For PPO and TRPO especially, the reduction in success from 1.0x to 1.4x is primarily transferred into the road-collision category.
+
+Drowning rates remain comparatively more stable.
+
+This suggests that road crossing is more sensitive to timing compression than river traversal.
+
+A plausible interpretation is that faster cars reduce the available safe crossing interval, invalidating learned timing policies more aggressively.
+
+River traversal also depends on motion timing, but the platform-support mechanic appears comparatively more tolerant to the tested speed changes.
+
+The speed-shift result therefore indicates not only a reduction in aggregate robustness, but also a mechanic-specific failure pattern:
+
+> Faster evaluation-time dynamics primarily disrupt road-crossing timing, while river-handling behavior is comparatively more stable.
+
+---
+
+## 13. Hazard-Composition Shift
+
+The second distribution-shift experiment changes the relative frequency of road and river hazards while preserving:
+
+- total number of hazards
+- procedural hazard placement
+- standard hazard speeds
+- local2 observation
+- the same trained policies
+
+Three evaluation conditions are used.
+
+### Standard
+
+The original v9 composition generator.
+
+Possible mixed compositions include:
+
+```text
+1 road / 3 rivers
+2 roads / 2 rivers
+3 roads / 1 river
+```
+
+### Road-heavy
+
+Every episode contains exactly:
+
+```text
+3 roads
+1 river
+```
+
+### River-heavy
+
+Every episode contains exactly:
+
+```text
+1 road
+3 rivers
+```
+
+No retraining is performed.
+
+---
+
+## 14. Composition-Shift Results
+
+### Final 1M-step success rates
+
+| Algorithm | Standard | Road-heavy | River-heavy |
+|---|---:|---:|---:|
+| PPO | 50.0% ± 7.6% | 39.2% ± 5.1% | 57.2% ± 4.9% |
+| TRPO | 49.0% ± 6.8% | 43.0% ± 7.8% | 58.4% ± 4.7% |
+| DQN | 46.4% ± 7.8% | 34.2% ± 8.0% | 61.6% ± 8.5% |
+| QR-DQN | 33.6% ± 6.3% | 20.0% ± 5.4% | 46.4% ± 7.1% |
+
+The direction of the effect is consistent across every algorithm:
+
+```text
+road-heavy
+    ↓ performance
+
+river-heavy
+    ↑ performance
+```
+
+---
+
+## 15. Road Hazards Are the More Difficult v9 Mechanic
+
+The composition-shift experiment provides direct evidence that the road mechanic contributes more strongly to v9 difficulty than the river mechanic.
+
+Increasing road frequency decreases success for every algorithm.
+
+Increasing river frequency improves success for every algorithm.
+
+The effect is especially large for the value-based methods.
+
+For DQN:
+
+```text
+road-heavy    34.2%
+standard      46.4%
+river-heavy   61.6%
+```
+
+For QR-DQN:
+
+```text
+road-heavy    20.0%
+standard      33.6%
+river-heavy   46.4%
+```
+
+This result is consistent with the earlier v9 failure-mode analysis, where road collisions were the most common residual failure for PPO, TRPO, and DQN.
+
+It also helps explain why v9 can outperform v7 despite having two different mechanics.
+
+v7 contains four procedural road hazards, while v9 replaces some of those roads with rivers.
+
+The additional mechanic increases behavioral diversity, but does not necessarily increase overall task difficulty because river hazards are comparatively easier for the trained agents.
+
+---
+
+## 16. Combined Distribution-Shift Findings
+
+The two completed shift experiments test different forms of robustness.
+
+### Dynamics shift
+
+Hazard-speed modification changes how quickly the environment evolves.
+
+> Policies are relatively robust to slower-than-training dynamics but degrade substantially under faster-than-training dynamics.
+
+### Composition shift
+
+Hazard-composition modification changes how frequently each learned mechanic is encountered.
+
+> Policies perform worse as the environment becomes more road-heavy and better as it becomes more river-heavy.
+
+Together, these results reinforce several broader benchmark findings.
+
+### Robustness is asymmetric
+
+A perturbation does not necessarily have equal effects in both directions.
+
+For example:
+
+```text
+0.8x speed
+≈ standard performance
+
+1.4x speed
+<< standard performance
+```
+
+### Mechanics contribute unequally to difficulty
+
+Road and river hazards are not interchangeable sources of complexity.
+
+Road hazards are consistently more difficult under the tested v9 configuration.
+
+### In-distribution performance does not completely predict robustness
+
+The highest-performing in-distribution algorithm does not necessarily remain the highest-performing algorithm under shift.
+
+DQN, for example, becomes the strongest mean performer at the most severe tested speed shift.
+
+### Failure-mode analysis is important
+
+Aggregate success rate alone does not explain why performance changes.
+
+The speed-shift experiments show that degradation is disproportionately associated with increased road collisions.
+
+---
+
+# Distribution-Shift Figures
+
+Distribution-shift figures and aggregated results are stored under:
+
+```text
+results/figures/distribution_shift/
+```
+
+Current outputs include:
+
+```text
+v9_speed_shift_robustness.png
+v9_speed_shift_failure_modes.png
+v9_speed_shift_raw.csv
+v9_speed_shift_summary.csv
+
+v9_composition_shift_robustness.png
+v9_composition_shift_raw.csv
+v9_composition_shift_summary.csv
+```
+
+---
+
+# Updated Open Questions
+
+With the initial distribution-shift experiments complete, promising directions now include:
+
+1. **Cross-environment transfer**
+   - evaluate whether policies learned in one environment transfer to related environments
+
+2. **Training under broader distributions**
+   - determine whether domain randomization improves robustness to speed or composition shift
+
+3. **Mechanic-specific transfer**
+   - test whether road or river competence transfers when mechanics are introduced separately
+
+4. **More severe out-of-distribution changes**
+   - alter layout constraints or environmental scale rather than only local dynamics
+
+5. **Robustness versus specialization**
+   - compare policies optimized for narrow fixed distributions against policies trained under greater procedural diversity
+
+Cross-environment transfer is the most natural next step because it asks a qualitatively different question:
+
+> Do the learned behaviors generalize across related tasks, rather than only across variants of the same v9 environment?
+

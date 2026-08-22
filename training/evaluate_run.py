@@ -81,6 +81,7 @@ def evaluate_model(
     num_episodes,
     eval_seed_start,
     speed_scale=1.0,
+    composition="standard",
 ):
     model_class = ALGORITHMS[algorithm]
 
@@ -88,7 +89,8 @@ def evaluate_model(
 
     if env_name == "v9":
         env = env_class(
-            speed_scale=speed_scale
+            speed_scale=speed_scale,
+            composition=composition,
         )
     else:
         env = env_class()
@@ -272,6 +274,20 @@ def main():
         ),
     )
 
+    parser.add_argument(
+        "--composition",
+        choices=[
+            "standard",
+            "road_heavy",
+            "river_heavy",
+        ],
+        default="standard",
+        help=(
+            "Evaluation-time v9 hazard composition. "
+            "Default 'standard' preserves the training distribution."
+        ),
+    )
+
     args = parser.parse_args()
 
     if args.algorithm == "qrdqn":
@@ -342,6 +358,7 @@ def main():
             num_episodes=args.episodes,
             eval_seed_start=args.eval_seed_start,
             speed_scale=args.speed_scale,
+            composition=args.composition,
         )
 
         rows.append(result)
@@ -356,14 +373,55 @@ def main():
     if not rows:
         raise SystemExit("No checkpoints found.")
 
-    if args.env == "v9" and args.speed_scale != 1.0:
-        speed_tag = str(args.speed_scale).replace(".", "p")
+    if args.env == "v9":
+        shifted_speed = args.speed_scale != 1.0
+        shifted_composition = (
+            args.composition != "standard"
+        )
+
+        if shifted_speed and shifted_composition:
+            speed_tag = str(
+                args.speed_scale
+            ).replace(".", "p")
+
+            output_path = (
+                run_dir
+                / (
+                    f"evaluation_speed_{speed_tag}"
+                    f"_composition_{args.composition}.csv"
+                )
+            )
+
+        elif shifted_speed:
+            speed_tag = str(
+                args.speed_scale
+            ).replace(".", "p")
+
+            output_path = (
+                run_dir
+                / f"evaluation_speed_{speed_tag}.csv"
+            )
+
+        elif shifted_composition:
+            output_path = (
+                run_dir
+                / (
+                    f"evaluation_composition_"
+                    f"{args.composition}.csv"
+                )
+            )
+
+        else:
+            output_path = (
+                run_dir
+                / "evaluation.csv"
+            )
+
+    else:
         output_path = (
             run_dir
-            / f"evaluation_speed_{speed_tag}.csv"
+            / "evaluation.csv"
         )
-    else:
-        output_path = run_dir / "evaluation.csv"
 
     with output_path.open("w", newline="") as f:
         writer = csv.DictWriter(

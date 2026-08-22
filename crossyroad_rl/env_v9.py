@@ -30,13 +30,31 @@ class CrossyRoadEnvV9(CrossyRoadEnvV8):
       2 = river
     """
 
-    def __init__(self, speed_scale=1.0):
+    def __init__(
+        self,
+        speed_scale=1.0,
+        composition="standard",
+    ):
         super().__init__()
 
         self.speed_scale = float(speed_scale)
 
         if self.speed_scale <= 0:
-            raise ValueError('speed_scale must be > 0')
+            raise ValueError("speed_scale must be > 0")
+
+        valid_compositions = {
+            "standard",
+            "road_heavy",
+            "river_heavy",
+        }
+
+        if composition not in valid_compositions:
+            raise ValueError(
+                f"composition must be one of "
+                f"{sorted(valid_compositions)}"
+            )
+
+        self.composition = composition
 
         self.candidate_hazard_rows = tuple(
             range(1, self.goal_y)
@@ -267,19 +285,51 @@ class CrossyRoadEnvV9(CrossyRoadEnvV8):
 
             break
 
-        # Assign road/river labels until both mechanics appear.
-        while True:
-            types = self.np_random.choice(
-                ["road", "river"],
-                size=4,
-                replace=True,
-            ).tolist()
+        # Assign road/river labels.
+        #
+        # standard:
+        #   Original v9 distribution: independently sample each
+        #   type while requiring at least one road and one river.
+        #
+        # road_heavy:
+        #   Exactly 3 roads + 1 river.
+        #
+        # river_heavy:
+        #   Exactly 1 road + 3 rivers.
 
-            if (
-                "road" in types
-                and "river" in types
-            ):
-                break
+        if self.composition == "standard":
+            while True:
+                types = self.np_random.choice(
+                    ["road", "river"],
+                    size=4,
+                    replace=True,
+                ).tolist()
+
+                if (
+                    "road" in types
+                    and "river" in types
+                ):
+                    break
+
+        elif self.composition == "road_heavy":
+            types = [
+                "road",
+                "road",
+                "road",
+                "river",
+            ]
+
+            self.np_random.shuffle(types)
+
+        elif self.composition == "river_heavy":
+            types = [
+                "road",
+                "river",
+                "river",
+                "river",
+            ]
+
+            self.np_random.shuffle(types)
 
         self.hazard_rows = rows
 
