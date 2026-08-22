@@ -1,0 +1,2 @@
+train_env,eval_env,algorithm,training_seed,checkpoint_steps,episodes,success_rate,collision_rate,road_collision_rate,drowning_rate,timeout_rate,avg_reward,avg_steps,avg_max_row,wait_pct,forward_pct,backward_pct,left_pct,right_pct,model_path
+v8,v9,trpo,0,1000000,100,0.19,0.81,0.47,0.34,0.0,5.6308000000000025,13.92,5.63,0.444683908045977,0.444683908045977,0.11063218390804598,0.0,0.0,results/runs/v8/trpo_seed0/final_model

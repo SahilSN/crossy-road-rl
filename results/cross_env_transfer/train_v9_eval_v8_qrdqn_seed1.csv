@@ -1,0 +1,2 @@
+train_env,eval_env,algorithm,training_seed,checkpoint_steps,episodes,success_rate,collision_rate,road_collision_rate,drowning_rate,timeout_rate,avg_reward,avg_steps,avg_max_row,wait_pct,forward_pct,backward_pct,left_pct,right_pct,model_path
+v9,v8,qrdqn,1,1000000,100,0.44,0.56,0.3,0.26,0.0,7.747800000000004,17.22,6.28,0.289198606271777,0.45876887340301975,0.20441347270615565,0.0,0.047619047619047616,results/runs/v9/qrdqn_50q_seed1/final_model

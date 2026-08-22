@@ -735,3 +735,205 @@ Cross-environment transfer is the most natural next step because it asks a quali
 
 > Do the learned behaviors generalize across related tasks, rather than only across variants of the same v9 environment?
 
+
+---
+
+## 17. Cross-Environment Transfer Between v8 and v9
+
+We next tested whether policies trained in one mixed-mechanics environment could transfer directly to the other without retraining.
+
+The comparison is between:
+
+- **v8:** fixed mixed-mechanics layout
+- **v9:** procedural mixed-mechanics layout
+
+Both environments use the same action space and compatible local2 observation structure, allowing direct checkpoint evaluation.
+
+Two transfer directions were evaluated:
+
+```text
+v8 -> v9
+fixed -> procedural
+
+v9 -> v8
+procedural -> fixed
+```
+
+All four algorithms were evaluated across five training seeds using 100 evaluation episodes per seed.
+
+### Transfer success rates
+
+| Direction | PPO | TRPO | DQN | QR-DQN |
+|---|---:|---:|---:|---:|
+| v8 -> v9 | 11.0% ± 8.3% | 14.0% ± 4.4% | 2.0% ± 1.9% | 0.8% ± 0.8% |
+| v9 -> v8 | 70.2% ± 8.0% | 76.2% ± 15.2% | 76.0% ± 10.5% | 53.4% ± 14.2% |
+
+The transfer pattern is strongly asymmetric.
+
+Policies trained on fixed v8 perform very poorly when evaluated on procedural v9:
+
+```text
+PPO      11.0%
+TRPO     14.0%
+DQN       2.0%
+QR-DQN    0.8%
+```
+
+Relative to their native v8 performance, these policies retain only a small fraction of their original success rate.
+
+By contrast, v9-trained policies retain substantial competence when transferred to fixed v8:
+
+```text
+PPO      70.2%
+TRPO     76.2%
+DQN      76.0%
+QR-DQN   53.4%
+```
+
+This produces the following native-to-transfer comparison:
+
+| Algorithm | Native v8 | v8 -> v9 | Native v9 | v9 -> v8 |
+|---|---:|---:|---:|---:|
+| PPO | 94.0% | 11.0% | 50.0% | 70.2% |
+| TRPO | 100.0% | 14.0% | 49.0% | 76.2% |
+| DQN | 80.6% | 2.0% | 46.4% | 76.0% |
+| QR-DQN | 96.2% | 0.8% | 33.6% | 53.4% |
+
+### Interpretation
+
+The results suggest that training under procedural variation produces behavior that is substantially more reusable across related environment configurations.
+
+Fixed-layout policies appear to specialize heavily to the structure encountered during training.
+
+Once the road and river locations become procedural, their performance collapses.
+
+Procedural v9 policies, in contrast, remain effective when transferred to the fixed v8 environment.
+
+A useful summary is:
+
+> Cross-environment transfer is strongly asymmetric: policies trained under procedural variation retain substantial competence on the corresponding fixed environment, while policies trained on the fixed environment generalize poorly to the procedural environment.
+
+This should not be interpreted as evidence that procedural training universally dominates fixed training.
+
+The transfer directions differ in difficulty:
+
+- v8 -> v9 moves from a simpler fixed task to a more variable procedural task
+- v9 -> v8 moves from a more variable task to a simpler fixed task
+
+The result therefore supports a claim about **asymmetric generalization**, rather than a symmetric comparison of policy quality.
+
+---
+
+## 18. Transfer Failure Modes
+
+Failure behavior also differs substantially across algorithms in the difficult v8 -> v9 direction.
+
+Mean v8 -> v9 outcomes include:
+
+| Algorithm | Road collision | Drowning | Timeout |
+|---|---:|---:|---:|
+| PPO | 35.0% | 30.2% | 23.8% |
+| TRPO | 48.6% | 37.0% | 0.4% |
+| DQN | 28.0% | 39.0% | 31.0% |
+| QR-DQN | 20.6% | 26.2% | 52.4% |
+
+These results indicate that fixed-layout specialization does not manifest in exactly the same way for every algorithm.
+
+TRPO continues to make substantial progress in v9 but fails primarily through interactions with the hazards themselves.
+
+QR-DQN, in contrast, frequently stalls or fails to progress effectively, producing a timeout rate above 50%.
+
+DQN exhibits both hazard failures and substantial timeout behavior.
+
+This suggests at least two distinct transfer-failure patterns:
+
+1. **behavioral timing failure**
+   - the agent continues traversing the environment but its learned interaction strategy no longer works reliably
+
+2. **structural specialization**
+   - the policy appears to rely more strongly on the fixed spatial organization encountered during training and fails to make consistent progress when that organization changes
+
+The v9 -> v8 direction is much healthier overall, with most failures concentrated in road collisions or drowning rather than widespread timeout behavior.
+
+---
+
+## 19. Cross-Environment Transfer Figure
+
+The transfer comparison is visualized in:
+
+```text
+results/figures/cross_env_transfer/
+    v8_v9_cross_environment_transfer.png
+```
+
+The figure separates the two training conditions:
+
+- **Train on Fixed v8**
+  - native v8 performance
+  - transfer to procedural v9
+
+- **Train on Procedural v9**
+  - native v9 performance
+  - transfer to fixed v8
+
+The visual asymmetry is large.
+
+Fixed v8 policies transition from high native performance to near-zero or low success on v9, while v9 policies retain substantial success when transferred to v8.
+
+Aggregated transfer data are stored under:
+
+```text
+results/cross_env_transfer/
+```
+
+including:
+
+```text
+cross_env_transfer_raw.csv
+cross_env_transfer_summary.csv
+cross_env_transfer_retention.csv
+```
+
+---
+
+## 20. Updated Generalization Findings
+
+The benchmark now contains three distinct forms of generalization analysis:
+
+### Same-generator held-out seeds
+
+v7 policies show similar performance on standard and held-out reset seeds.
+
+This indicates that changing the random seed within the same procedural generator does not constitute a meaningful distribution shift.
+
+### Evaluation-time distribution shift
+
+v9 policies were evaluated under:
+
+- hazard-speed changes
+- hazard-composition changes
+
+These experiments show that robustness depends on the direction and type of shift.
+
+### Cross-environment transfer
+
+v8 and v9 provide a stronger structural generalization test.
+
+The result is strongly asymmetric:
+
+```text
+fixed training -> procedural evaluation
+poor transfer
+
+procedural training -> fixed evaluation
+substantial transfer
+```
+
+Together, these experiments suggest that procedural diversity during training is important for learning behavior that remains useful outside a single fixed environment configuration.
+
+At the same time, procedural training does not eliminate robustness limitations: v9 policies still degrade under faster hazards and under road-heavy composition shifts.
+
+This points to an important distinction:
+
+> Procedural training improves structural generalization, but does not guarantee robustness to all forms of distribution shift.
+

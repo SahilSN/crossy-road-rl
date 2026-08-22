@@ -1,0 +1,2 @@
+train_env,eval_env,algorithm,training_seed,checkpoint_steps,episodes,success_rate,collision_rate,road_collision_rate,drowning_rate,timeout_rate,avg_reward,avg_steps,avg_max_row,wait_pct,forward_pct,backward_pct,left_pct,right_pct,model_path
+v8,v9,dqn,0,1000000,100,0.04,0.79,0.35,0.44,0.17,1.5637000000000023,23.63,3.24,0.1570038087177317,0.15277190012695727,0.017350825222175202,0.5598815065594583,0.11299195937367752,results/runs/v8/dqn_seed0/final_model
