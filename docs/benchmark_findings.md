@@ -1508,3 +1508,260 @@ The combined findings suggest:
 
 This provides a more precise robustness conclusion than simply labeling all shifted conditions as OOD failures.
 
+
+---
+
+## 35. Spatial-Layout Generalization
+
+The v9 procedural generator constrains the spatial arrangement of hazards.
+
+During standard training:
+
+- four hazard rows are sampled from rows 1–8,
+- at least one hazard must occur in the lower half,
+- at least one hazard must occur in the upper half,
+- no more than two hazards may appear consecutively.
+
+To evaluate sensitivity to spatial structure, two evaluation-only layout modes were introduced.
+
+### Separated control
+
+The separated condition fixes hazards at:
+
+```text
+[1, 3, 6, 8]
+```
+
+This arrangement satisfies the original v9 layout constraints and is therefore structurally compatible with the training distribution.
+
+It serves as a control for whether simply fixing the environment to a particular layout causes degradation.
+
+### Clustered OOD
+
+The clustered condition samples from:
+
+```text
+[2, 3, 4, 5]
+[3, 4, 5, 6]
+[4, 5, 6, 7]
+```
+
+Each layout contains four consecutive hazard rows.
+
+Such layouts are excluded by the standard v9 generator because training permits at most two consecutive hazards.
+
+The clustered condition therefore represents structural spatial-layout extrapolation outside the training support.
+
+No retraining or fine-tuning is performed.
+
+---
+
+## 36. Spatial-Layout OOD Results
+
+Five training seeds are evaluated for PPO, TRPO, DQN, and QR-DQN.
+
+### Success rate at 1M steps
+
+| Algorithm | Standard | Separated | Clustered OOD |
+|---|---:|---:|---:|
+| PPO | 50.0% ± 7.6% | 58.0% ± 3.8% | 21.8% ± 6.1% |
+| TRPO | 49.0% ± 6.8% | 49.0% ± 9.4% | 26.2% ± 3.2% |
+| DQN | 46.4% ± 7.8% | 48.8% ± 4.2% | 22.2% ± 2.4% |
+| QR-DQN | 33.6% ± 6.3% | 34.2% ± 8.6% | 17.0% ± 6.8% |
+
+Relative to standard v9:
+
+```text
+PPO
+Separated      +8.0 pp
+Clustered     -28.2 pp
+
+TRPO
+Separated       0.0 pp
+Clustered     -22.8 pp
+
+DQN
+Separated      +2.4 pp
+Clustered     -24.2 pp
+
+QR-DQN
+Separated      +0.6 pp
+Clustered     -16.6 pp
+```
+
+The separated condition remains close to the standard v9 baseline for all four algorithms.
+
+In contrast, the clustered OOD condition causes a large degradation across every tested algorithm.
+
+This indicates that the observed failure is not simply caused by evaluating on a fixed spatial arrangement.
+
+Instead, the important factor is the unseen clustering structure.
+
+---
+
+## 37. Failure Modes Under Spatial Clustering
+
+The clustered condition increases both road collisions and drowning.
+
+### PPO
+
+```text
+Standard
+road collision = 30.8%
+drowning       = 18.6%
+
+Clustered
+road collision = 51.4%
+drowning       = 26.8%
+```
+
+### TRPO
+
+```text
+Standard
+road collision = 29.6%
+drowning       = 20.6%
+
+Clustered
+road collision = 47.2%
+drowning       = 26.2%
+```
+
+### DQN
+
+```text
+Standard
+road collision = 33.2%
+drowning       = 18.6%
+
+Clustered
+road collision = 49.4%
+drowning       = 27.6%
+```
+
+### QR-DQN
+
+```text
+Standard
+road collision = 35.4%
+drowning       = 27.2%
+
+Clustered
+road collision = 49.0%
+drowning       = 29.6%
+```
+
+The degradation therefore does not appear to arise from one isolated mechanic.
+
+Instead, consecutive hazards increase failure across both road and river interactions.
+
+---
+
+## 38. Interpretation of Spatial-Layout Shift
+
+The spatial-layout experiment reveals a structural limitation that is distinct from the earlier speed and composition shifts.
+
+The key comparison is:
+
+```text
+fixed separated layout
+    ≈ standard performance
+
+unseen clustered layout
+    << standard performance
+```
+
+This suggests that the learned policies tolerate a fixed spatial arrangement when it remains compatible with the structural patterns encountered during training.
+
+However, performance degrades substantially when hazards are arranged into a four-row consecutive cluster excluded by the training generator.
+
+The result therefore supports the conclusion:
+
+> The learned policies are sensitive not only to hazard mechanics and dynamics, but also to the higher-level spatial structure in which hazards are encountered.
+
+Because both road and river failure rates increase under clustering, the effect is best interpreted as a general sequential-hazard difficulty rather than a failure associated with one mechanic alone.
+
+---
+
+## 39. Spatial-Layout OOD Figure
+
+The spatial-layout result is visualized in:
+
+```text
+results/figures/layout_ood/
+    v9_layout_ood_success.png
+```
+
+The grouped bar chart compares:
+
+```text
+Standard
+Separated
+Clustered OOD
+```
+
+for PPO, TRPO, DQN, and QR-DQN.
+
+Error bars show ±1 standard deviation across five training seeds.
+
+Supporting outputs are stored in:
+
+```text
+results/figures/layout_ood/
+    v9_layout_ood_raw.csv
+    v9_layout_ood_summary.csv
+    v9_layout_ood_success.png
+```
+
+---
+
+## 40. Updated Generalization Picture
+
+The v9 benchmark now exposes several distinct forms of generalization.
+
+### Same-distribution reset seeds
+
+Held-out reset seeds drawn from the same procedural generator produce little degradation.
+
+This is not true OOD evaluation.
+
+### Composition reweighting
+
+```text
+river-heavy
+road-heavy
+```
+
+These conditions alter mechanic prevalence while remaining within training support.
+
+### Composition-support extrapolation
+
+```text
+all-river
+all-road
+```
+
+These conditions contain hazard compositions never observed during standard training.
+
+### Dynamics shift
+
+```text
+0.8x
+1.2x
+1.4x hazard speed
+```
+
+These conditions change temporal dynamics.
+
+### Spatial-structure extrapolation
+
+```text
+clustered four-hazard sequences
+```
+
+These layouts violate the maximum-consecutive-hazard constraint used during training.
+
+Taken together, the experiments show that generalization depends strongly on the dimension along which the environment changes.
+
+The policies are relatively tolerant to some within-support changes, but can degrade sharply when evaluation violates structural assumptions embedded in the training distribution.
+

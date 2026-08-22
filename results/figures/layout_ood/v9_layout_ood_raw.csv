@@ -1,0 +1,61 @@
+algorithm,training_seed,condition,condition_label,success_rate,avg_reward,avg_max_row,road_collision_rate,drowning_rate,timeout_rate
+ppo,0,standard,Standard,0.5,9.224899999999998,7.36,0.31,0.19,0.0
+ppo,0,separated,Separated,0.52,9.6785,7.69,0.31,0.17,0.0
+ppo,0,clustered,Clustered OOD,0.22,6.165899999999998,5.94,0.63,0.15,0.0
+ppo,1,standard,Standard,0.38,8.0379,7.0,0.39,0.21,0.02
+ppo,1,separated,Separated,0.59,10.285500000000006,7.9,0.31,0.1,0.0
+ppo,1,clustered,Clustered OOD,0.21,5.714500000000002,5.55,0.4,0.39,0.0
+ppo,2,standard,Standard,0.57,9.6905,7.41,0.21,0.22,0.0
+ppo,2,separated,Separated,0.57,9.8372,7.53,0.32,0.11,0.0
+ppo,2,clustered,Clustered OOD,0.13,5.0543000000000005,5.36,0.59,0.28,0.0
+ppo,3,standard,Standard,0.56,9.6878,7.47,0.32,0.12,0.0
+ppo,3,separated,Separated,0.6,10.400700000000006,7.94,0.31,0.09,0.0
+ppo,3,clustered,Clustered OOD,0.3,6.8469000000000015,6.16,0.45,0.25,0.0
+ppo,4,standard,Standard,0.49,8.9781,7.25,0.31,0.19,0.01
+ppo,4,separated,Separated,0.62,10.299900000000004,7.76,0.25,0.13,0.0
+ppo,4,clustered,Clustered OOD,0.23,6.2128000000000005,5.93,0.5,0.27,0.0
+trpo,0,standard,Standard,0.57,9.970600000000005,7.79,0.25,0.17,0.01
+trpo,0,separated,Separated,0.58,10.037600000000005,7.71,0.21,0.21,0.0
+trpo,0,clustered,Clustered OOD,0.28,6.969700000000001,6.4,0.41,0.31,0.0
+trpo,1,standard,Standard,0.39,8.146800000000002,6.93,0.39,0.22,0.0
+trpo,1,separated,Separated,0.43,8.603099999999998,7.14,0.38,0.19,0.0
+trpo,1,clustered,Clustered OOD,0.3,6.781100000000002,6.08,0.47,0.23,0.0
+trpo,2,standard,Standard,0.53,9.310900000000006,7.44,0.22,0.22,0.03
+trpo,2,separated,Separated,0.6,10.434900000000004,8.07,0.21,0.18,0.01
+trpo,2,clustered,Clustered OOD,0.27,6.955900000000001,6.44,0.45,0.28,0.0
+trpo,3,standard,Standard,0.47,8.847800000000005,7.16,0.34,0.19,0.0
+trpo,3,separated,Separated,0.39,8.3699,7.15,0.44,0.17,0.0
+trpo,3,clustered,Clustered OOD,0.24,5.9814,5.76,0.53,0.21,0.02
+trpo,4,standard,Standard,0.49,8.972300000000002,7.18,0.28,0.23,0.0
+trpo,4,separated,Separated,0.45,8.868500000000003,7.3,0.39,0.16,0.0
+trpo,4,clustered,Clustered OOD,0.22,6.111800000000004,5.89,0.5,0.28,0.0
+dqn,0,standard,Standard,0.51,8.905999999999999,7.0,0.31,0.18,0.0
+dqn,0,separated,Separated,0.45,8.552900000000006,7.03,0.46,0.09,0.0
+dqn,0,clustered,Clustered OOD,0.23,5.7098,5.52,0.49,0.28,0.0
+dqn,1,standard,Standard,0.47,8.6873,7.1,0.35,0.16,0.02
+dqn,1,separated,Separated,0.54,9.666900000000004,7.66,0.29,0.16,0.01
+dqn,1,clustered,Clustered OOD,0.26,6.167800000000002,5.86,0.49,0.22,0.03
+dqn,2,standard,Standard,0.42,8.169199999999998,6.85,0.4,0.16,0.02
+dqn,2,separated,Separated,0.5,9.087599999999998,7.2,0.3,0.2,0.0
+dqn,2,clustered,Clustered OOD,0.2,5.394400000000001,5.35,0.49,0.3,0.01
+dqn,3,standard,Standard,0.56,9.474500000000008,7.51,0.2,0.2,0.04
+dqn,3,separated,Separated,0.51,9.636600000000003,7.81,0.38,0.11,0.0
+dqn,3,clustered,Clustered OOD,0.21,5.665800000000002,5.53,0.37,0.42,0.0
+dqn,4,standard,Standard,0.36,7.456100000000001,6.48,0.4,0.23,0.01
+dqn,4,separated,Separated,0.44,8.471200000000003,6.98,0.24,0.32,0.0
+dqn,4,clustered,Clustered OOD,0.21,5.412500000000003,5.27,0.63,0.16,0.0
+qrdqn,0,standard,Standard,0.24,6.649700000000004,6.48,0.42,0.33,0.01
+qrdqn,0,separated,Separated,0.24,7.088800000000003,6.99,0.49,0.24,0.03
+qrdqn,0,clustered,Clustered OOD,0.16,4.672500000000006,5.06,0.55,0.29,0.0
+qrdqn,1,standard,Standard,0.33,7.1338000000000035,6.57,0.37,0.27,0.03
+qrdqn,1,separated,Separated,0.27,6.399900000000007,6.22,0.32,0.39,0.02
+qrdqn,1,clustered,Clustered OOD,0.22,5.903900000000002,5.7,0.49,0.29,0.0
+qrdqn,2,standard,Standard,0.37,7.702900000000007,6.73,0.38,0.25,0.0
+qrdqn,2,separated,Separated,0.38,8.217000000000002,7.14,0.31,0.31,0.0
+qrdqn,2,clustered,Clustered OOD,0.18,5.145800000000003,5.25,0.54,0.28,0.0
+qrdqn,3,standard,Standard,0.41,7.638900000000006,6.7,0.23,0.3,0.06
+qrdqn,3,separated,Separated,0.45,8.568400000000006,7.09,0.2,0.35,0.0
+qrdqn,3,clustered,Clustered OOD,0.06,1.8274000000000084,3.89,0.42,0.3,0.22
+qrdqn,4,standard,Standard,0.33,6.789800000000005,6.46,0.37,0.21,0.09
+qrdqn,4,separated,Separated,0.37,8.281200000000005,7.29,0.49,0.14,0.0
+qrdqn,4,clustered,Clustered OOD,0.23,6.146000000000002,5.86,0.45,0.32,0.0

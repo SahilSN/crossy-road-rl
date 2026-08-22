@@ -34,6 +34,7 @@ class CrossyRoadEnvV9(CrossyRoadEnvV8):
         self,
         speed_scale=1.0,
         composition="standard",
+        layout_mode="standard",
     ):
         super().__init__()
 
@@ -57,6 +58,20 @@ class CrossyRoadEnvV9(CrossyRoadEnvV8):
             )
 
         self.composition = composition
+
+        valid_layout_modes = {
+            "standard",
+            "clustered",
+            "separated",
+        }
+
+        if layout_mode not in valid_layout_modes:
+            raise ValueError(
+                f"layout_mode must be one of "
+                f"{sorted(valid_layout_modes)}"
+            )
+
+        self.layout_mode = layout_mode
 
         self.candidate_hazard_rows = tuple(
             range(1, self.goal_y)
@@ -238,54 +253,94 @@ class CrossyRoadEnvV9(CrossyRoadEnvV8):
     # ================================================================
 
     def _sample_layout(self):
-        while True:
-            rows = sorted(
-                self.np_random.choice(
-                    self.candidate_hazard_rows,
-                    size=4,
-                    replace=False,
-                ).tolist()
+        if self.layout_mode == "standard":
+            # Original v9 row sampler. Keep this path unchanged
+            # so standard training/evaluation remains identical.
+            while True:
+                rows = sorted(
+                    self.np_random.choice(
+                        self.candidate_hazard_rows,
+                        size=4,
+                        replace=False,
+                    ).tolist()
+                )
+
+                # At least one hazard in each half.
+                if not any(
+                    row <= 4
+                    for row in rows
+                ):
+                    continue
+
+                if not any(
+                    row >= 5
+                    for row in rows
+                ):
+                    continue
+
+                # No more than 2 consecutive hazards.
+                max_run = 1
+                current_run = 1
+
+                for i in range(
+                    1,
+                    len(rows),
+                ):
+                    if (
+                        rows[i]
+                        == rows[i - 1] + 1
+                    ):
+                        current_run += 1
+
+                        max_run = max(
+                            max_run,
+                            current_run,
+                        )
+
+                    else:
+                        current_run = 1
+
+                if max_run > 2:
+                    continue
+
+                break
+
+        elif self.layout_mode == "clustered":
+            # Structural OOD:
+            # four consecutive hazards.
+            #
+            # Restrict clusters to those crossing the midpoint so
+            # the original "hazards in both halves" property is
+            # preserved. The isolated change is therefore the
+            # consecutive-hazard constraint.
+            clustered_layouts = [
+                [2, 3, 4, 5],
+                [3, 4, 5, 6],
+                [4, 5, 6, 7],
+            ]
+
+            index = int(
+                self.np_random.integers(
+                    0,
+                    len(clustered_layouts),
+                )
             )
 
-            # At least one hazard in each half.
-            if not any(
-                row <= 4
-                for row in rows
-            ):
-                continue
+            rows = clustered_layouts[index].copy()
 
-            if not any(
-                row >= 5
-                for row in rows
-            ):
-                continue
+        elif self.layout_mode == "separated":
+            # Structured same-support control.
+            #
+            # This arrangement satisfies the original v9 layout
+            # constraints, but represents a deliberately spread-out
+            # configuration.
+            rows = [1, 3, 6, 8]
 
-            # No more than 2 consecutive hazards.
-            max_run = 1
-            current_run = 1
-
-            for i in range(
-                1,
-                len(rows),
-            ):
-                if (
-                    rows[i]
-                    == rows[i - 1] + 1
-                ):
-                    current_run += 1
-
-                    max_run = max(
-                        max_run,
-                        current_run,
-                    )
-
-                else:
-                    current_run = 1
-
-            if max_run > 2:
-                continue
-
-            break
+        else:
+            raise ValueError(
+                f"Unsupported layout_mode: "
+                f"{self.layout_mode}"
+            )
 
         # Assign road/river labels.
         #

@@ -84,6 +84,7 @@ def evaluate_model(
     eval_seed_start,
     speed_scale=1.0,
     composition="standard",
+    layout_mode="standard",
 ):
     model_class = ALGORITHMS[algorithm]
 
@@ -95,6 +96,7 @@ def evaluate_model(
         env = CrossyRoadEnvV9(
             speed_scale=speed_scale,
             composition=composition,
+            layout_mode=layout_mode,
         )
     else:
         env = env_class()
@@ -263,6 +265,19 @@ def main():
     )
 
     parser.add_argument(
+        "--layout-mode",
+        choices=[
+            "standard",
+            "clustered",
+            "separated",
+        ],
+        default="standard",
+        help=(
+            "Evaluation-time v9 spatial layout mode."
+        ),
+    )
+
+    parser.add_argument(
         "--eval-seed-start",
         type=int,
         default=1000,
@@ -365,6 +380,7 @@ def main():
             eval_seed_start=args.eval_seed_start,
             speed_scale=args.speed_scale,
             composition=args.composition,
+            layout_mode=args.layout_mode,
         )
 
         rows.append(result)
@@ -380,12 +396,29 @@ def main():
         raise SystemExit("No checkpoints found.")
 
     if args.env in {"v9", "v10"}:
+        shifted_layout = (
+            args.layout_mode != "standard"
+        )
+
         shifted_speed = args.speed_scale != 1.0
         shifted_composition = (
             args.composition != "standard"
         )
 
-        if shifted_speed and shifted_composition:
+        if (
+            shifted_layout
+            and not shifted_speed
+            and not shifted_composition
+        ):
+            output_path = (
+                run_dir
+                / (
+                    f"evaluation_layout_"
+                    f"{args.layout_mode}.csv"
+                )
+            )
+
+        elif shifted_speed and shifted_composition:
             speed_tag = str(
                 args.speed_scale
             ).replace(".", "p")
