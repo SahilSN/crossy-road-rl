@@ -1224,3 +1224,287 @@ Instead:
 
 > Broader training distributions improve some forms of generalization, but robustness remains strongly dependent on algorithm, mechanic, and shift type.
 
+
+---
+
+## 28. Unseen Hazard-Composition Generalization
+
+The earlier composition-shift experiment evaluated:
+
+```text
+1 road / 3 rivers
+3 roads / 1 river
+```
+
+These conditions change the frequency of hazard mechanics but remain within the support of the standard v9 training distribution.
+
+Standard v9 training permits the mixed compositions:
+
+```text
+1 road / 3 rivers
+2 roads / 2 rivers
+3 roads / 1 river
+```
+
+To test genuine composition-support extrapolation, two additional evaluation-only conditions were introduced:
+
+```text
+all_river = 0 roads / 4 rivers
+all_road  = 4 roads / 0 rivers
+```
+
+These extreme compositions never occur during standard v9 training.
+
+No retraining or fine-tuning is performed.
+
+The same v9 checkpoints are evaluated directly on the unseen composition conditions.
+
+---
+
+## 29. Full Composition Generalization Ladder
+
+The five evaluated composition conditions are:
+
+```text
+All river
+0 roads / 4 rivers
+        ↓
+River-heavy
+1 road / 3 rivers
+        ↓
+Standard mixture
+1/3, 2/2, or 3/1
+        ↓
+Road-heavy
+3 roads / 1 river
+        ↓
+All road
+4 roads / 0 rivers
+```
+
+Five training seeds are evaluated for PPO, TRPO, DQN, and QR-DQN.
+
+### Final 1M-step success rates
+
+| Algorithm | All river | 1R / 3V | Standard | 3R / 1V | All road |
+|---|---:|---:|---:|---:|---:|
+| PPO | 61.4% ± 3.0% | 57.2% ± 4.9% | 50.0% ± 7.6% | 39.2% ± 5.1% | 26.0% ± 4.4% |
+| TRPO | 62.2% ± 4.9% | 58.4% ± 4.7% | 49.0% ± 6.8% | 43.0% ± 7.8% | 36.2% ± 12.8% |
+| DQN | 78.0% ± 7.8% | 61.6% ± 8.5% | 46.4% ± 7.8% | 34.2% ± 8.0% | 25.8% ± 3.3% |
+| QR-DQN | 55.0% ± 9.1% | 46.4% ± 7.1% | 33.6% ± 6.3% | 20.0% ± 5.4% | 13.8% ± 7.3% |
+
+The pattern is consistent across all four algorithms:
+
+> Success decreases as the evaluation environment becomes more road-dominated.
+
+---
+
+## 30. Extreme Unseen-Composition Gap
+
+The difference between the two unseen composition endpoints is large:
+
+```text
+All-river minus all-road success
+
+PPO       +35.4 percentage points
+TRPO      +26.0 percentage points
+DQN       +52.2 percentage points
+QR-DQN    +41.2 percentage points
+```
+
+DQN shows the largest extreme gap.
+
+Its success rate changes from:
+
+```text
+all river    78.0%
+all road     25.8%
+```
+
+QR-DQN also shows a very large difference:
+
+```text
+all river    55.0%
+all road     13.8%
+```
+
+These results extend the earlier road-heavy / river-heavy finding beyond the composition support observed during training.
+
+---
+
+## 31. Failure Modes Across Composition
+
+The failure-mode decomposition reinforces the same conclusion.
+
+As road prevalence increases, road collisions become increasingly dominant.
+
+### PPO
+
+```text
+All river      road collision =  0.0%
+1R / 3V        road collision = 17.0%
+Standard       road collision = 30.8%
+3R / 1V        road collision = 55.8%
+All road       road collision = 73.2%
+```
+
+### TRPO
+
+```text
+All river      road collision =  0.0%
+1R / 3V        road collision = 13.4%
+Standard       road collision = 29.6%
+3R / 1V        road collision = 51.2%
+All road       road collision = 63.2%
+```
+
+### DQN
+
+```text
+All river      road collision =  0.0%
+1R / 3V        road collision = 15.4%
+Standard       road collision = 33.2%
+3R / 1V        road collision = 57.4%
+All road       road collision = 73.0%
+```
+
+### QR-DQN
+
+```text
+All river      road collision =  0.0%
+1R / 3V        road collision = 18.2%
+Standard       road collision = 35.4%
+3R / 1V        road collision = 60.8%
+All road       road collision = 78.6%
+```
+
+Drowning exhibits the complementary pattern and disappears entirely in the all-road environment.
+
+This indicates that the composition effect is not merely an aggregate success-rate artifact.
+
+The underlying failure mechanism shifts systematically with the prevalence of each hazard type.
+
+---
+
+## 32. Interpretation of Unseen Composition Shift
+
+The unseen endpoint results provide stronger evidence that road hazards are the dominant source of difficulty in v9.
+
+The effect extends beyond the compositions encountered during training:
+
+```text
+unseen all-river
+    easier than mixed training conditions
+
+unseen all-road
+    harder than mixed training conditions
+```
+
+This indicates that the learned policies can extrapolate to unseen mechanic compositions, but performance depends strongly on which mechanic dominates.
+
+The result is not best interpreted as a generic failure of out-of-distribution generalization.
+
+In fact, the all-river condition is also outside the training support and produces substantially higher success.
+
+Instead, the relevant conclusion is:
+
+> Out-of-support composition alone is not necessarily harmful; performance depends strongly on the intrinsic difficulty of the mechanic that dominates the shifted environment.
+
+This distinction is important because it separates:
+
+```text
+distribution distance
+```
+
+from:
+
+```text
+task difficulty
+```
+
+The all-road and all-river environments are both compositionally unseen, yet they produce opposite performance effects.
+
+---
+
+## 33. Composition-OOD Figure
+
+The full composition-generalization result is visualized in:
+
+```text
+results/figures/composition_ood/
+    v9_composition_ood_ladder.png
+```
+
+The figure orders evaluation conditions from all-river to all-road and plots success rate with ±1 standard deviation across five training seeds.
+
+Supporting outputs are stored in:
+
+```text
+results/figures/composition_ood/
+```
+
+including:
+
+```text
+v9_composition_ood_raw.csv
+v9_composition_ood_summary.csv
+v9_composition_success_ladder.csv
+v9_composition_ood_ladder.png
+```
+
+One important caveat is that the standard condition is not a fixed two-road / two-river environment.
+
+It is the original v9 mixture over:
+
+```text
+1R / 3V
+2R / 2V
+3R / 1V
+```
+
+The composition ladder therefore demonstrates a strong mechanic-composition trend, but should not be interpreted as a strictly linear per-road dose-response experiment.
+
+---
+
+## 34. Updated Distribution-Shift Interpretation
+
+The distribution-shift experiments now separate several distinct phenomena.
+
+### Same-support composition reweighting
+
+```text
+river-heavy
+road-heavy
+```
+
+These conditions remain within v9 training support.
+
+### Out-of-support composition extrapolation
+
+```text
+all-river
+all-road
+```
+
+These conditions introduce compositions never observed during v9 training.
+
+### Dynamics shift
+
+```text
+0.8x
+1.2x
+1.4x hazard speed
+```
+
+This changes the temporal dynamics while preserving the underlying mechanics.
+
+The combined findings suggest:
+
+1. **Road hazards are intrinsically harder than river hazards under the current benchmark design.**
+2. **Increasing road prevalence reduces performance across all tested algorithms.**
+3. **This trend continues outside the composition support seen during training.**
+4. **Out-of-support evaluation is not inherently harmful, since all-river is both unseen and easier.**
+5. **Distribution shift and task difficulty must therefore be analyzed separately.**
+
+This provides a more precise robustness conclusion than simply labeling all shifted conditions as OOD failures.
+

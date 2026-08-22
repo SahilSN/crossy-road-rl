@@ -1,0 +1,101 @@
+algorithm,training_seed,condition,condition_label,success_rate,avg_reward,avg_max_row,road_collision_rate,drowning_rate,timeout_rate
+ppo,0,all_river,All river,0.63,10.106,7.45,0.0,0.37,0.0
+ppo,0,river_heavy,1 road / 3 rivers,0.58,9.9506,7.61,0.2,0.22,0.0
+ppo,0,standard,Standard mixture,0.5,9.224899999999998,7.36,0.31,0.19,0.0
+ppo,0,road_heavy,3 roads / 1 river,0.41,8.5951,7.27,0.54,0.05,0.0
+ppo,0,all_road,All road,0.26,6.9149,6.48,0.74,0.0,0.0
+ppo,1,all_river,All river,0.62,10.286499999999998,7.71,0.0,0.38,0.0
+ppo,1,river_heavy,1 road / 3 rivers,0.5,9.1869,7.38,0.22,0.27,0.01
+ppo,1,standard,Standard mixture,0.38,8.0379,7.0,0.39,0.21,0.02
+ppo,1,road_heavy,3 roads / 1 river,0.34,7.6525,6.79,0.59,0.06,0.01
+ppo,1,all_road,All road,0.21,6.139200000000003,6.01,0.79,0.0,0.0
+ppo,2,all_river,All river,0.65,10.415399999999998,7.63,0.0,0.35,0.0
+ppo,2,river_heavy,1 road / 3 rivers,0.62,10.4394,7.84,0.15,0.23,0.0
+ppo,2,standard,Standard mixture,0.57,9.6905,7.41,0.21,0.22,0.0
+ppo,2,road_heavy,3 roads / 1 river,0.47,8.908900000000001,7.22,0.49,0.04,0.0
+ppo,2,all_road,All road,0.25,6.429000000000002,6.06,0.75,0.0,0.0
+ppo,3,all_river,All river,0.6,10.010799999999996,7.54,0.0,0.4,0.0
+ppo,3,river_heavy,1 road / 3 rivers,0.55,9.445000000000002,7.38,0.17,0.26,0.02
+ppo,3,standard,Standard mixture,0.56,9.6878,7.47,0.32,0.12,0.0
+ppo,3,road_heavy,3 roads / 1 river,0.38,8.2294,7.09,0.59,0.03,0.0
+ppo,3,all_road,All road,0.25,6.390999999999999,6.02,0.75,0.0,0.0
+ppo,4,all_river,All river,0.57,9.841,7.54,0.0,0.43,0.0
+ppo,4,river_heavy,1 road / 3 rivers,0.61,10.2874,7.77,0.11,0.28,0.0
+ppo,4,standard,Standard mixture,0.49,8.9781,7.25,0.31,0.19,0.01
+ppo,4,road_heavy,3 roads / 1 river,0.36,7.878700000000002,7.01,0.58,0.04,0.02
+ppo,4,all_road,All road,0.33,7.024200000000002,6.42,0.63,0.0,0.04
+trpo,0,all_river,All river,0.66,10.674299999999995,7.86,0.0,0.34,0.0
+trpo,0,river_heavy,1 road / 3 rivers,0.66,10.5828,7.84,0.08,0.25,0.01
+trpo,0,standard,Standard mixture,0.57,9.970600000000005,7.79,0.25,0.17,0.01
+trpo,0,road_heavy,3 roads / 1 river,0.53,9.573900000000002,7.67,0.42,0.04,0.01
+trpo,0,all_road,All road,0.49,9.002300000000004,7.29,0.51,0.0,0.0
+trpo,1,all_river,All river,0.64,10.352099999999998,7.62,0.0,0.36,0.0
+trpo,1,river_heavy,1 road / 3 rivers,0.59,9.842400000000003,7.42,0.14,0.27,0.0
+trpo,1,standard,Standard mixture,0.39,8.146800000000002,6.93,0.39,0.22,0.0
+trpo,1,road_heavy,3 roads / 1 river,0.39,8.0858,6.89,0.56,0.05,0.0
+trpo,1,all_road,All road,0.24,6.346000000000001,6.04,0.76,0.0,0.0
+trpo,2,all_river,All river,0.67,10.5474,7.64,0.0,0.33,0.0
+trpo,2,river_heavy,1 road / 3 rivers,0.58,9.858200000000002,7.53,0.09,0.33,0.0
+trpo,2,standard,Standard mixture,0.53,9.310900000000006,7.44,0.22,0.22,0.03
+trpo,2,road_heavy,3 roads / 1 river,0.49,9.024300000000002,7.55,0.39,0.07,0.05
+trpo,2,all_road,All road,0.51,9.256600000000006,7.6,0.47,0.0,0.02
+trpo,3,all_river,All river,0.57,9.3968,7.08,0.0,0.43,0.0
+trpo,3,river_heavy,1 road / 3 rivers,0.54,9.6428,7.52,0.21,0.25,0.0
+trpo,3,standard,Standard mixture,0.47,8.847800000000005,7.16,0.34,0.19,0.0
+trpo,3,road_heavy,3 roads / 1 river,0.34,7.871999999999999,6.97,0.63,0.03,0.0
+trpo,3,all_road,All road,0.27,6.9557,6.48,0.73,0.0,0.0
+trpo,4,all_river,All river,0.57,9.7541,7.46,0.0,0.43,0.0
+trpo,4,river_heavy,1 road / 3 rivers,0.55,9.682700000000002,7.52,0.15,0.3,0.0
+trpo,4,standard,Standard mixture,0.49,8.972300000000002,7.18,0.28,0.23,0.0
+trpo,4,road_heavy,3 roads / 1 river,0.4,8.2608,7.01,0.56,0.04,0.0
+trpo,4,all_road,All road,0.3,7.248400000000001,6.66,0.69,0.0,0.01
+dqn,0,all_river,All river,0.8,11.836900000000004,8.15,0.0,0.2,0.0
+dqn,0,river_heavy,1 road / 3 rivers,0.57,9.566,7.28,0.21,0.22,0.0
+dqn,0,standard,Standard mixture,0.51,8.905999999999999,7.0,0.31,0.18,0.0
+dqn,0,road_heavy,3 roads / 1 river,0.34,7.102500000000003,6.23,0.57,0.09,0.0
+dqn,0,all_road,All road,0.25,6.165900000000002,5.85,0.74,0.0,0.01
+dqn,1,all_river,All river,0.8,11.879200000000004,8.19,0.0,0.2,0.0
+dqn,1,river_heavy,1 road / 3 rivers,0.72,11.052300000000002,7.86,0.1,0.18,0.0
+dqn,1,standard,Standard mixture,0.47,8.6873,7.1,0.35,0.16,0.02
+dqn,1,road_heavy,3 roads / 1 river,0.47,8.7317,7.16,0.47,0.04,0.02
+dqn,1,all_road,All road,0.3,6.832000000000001,6.15,0.7,0.0,0.0
+dqn,2,all_river,All river,0.72,11.005099999999995,7.78,0.0,0.28,0.0
+dqn,2,river_heavy,1 road / 3 rivers,0.58,9.813299999999996,7.48,0.15,0.26,0.01
+dqn,2,standard,Standard mixture,0.42,8.169199999999998,6.85,0.4,0.16,0.02
+dqn,2,road_heavy,3 roads / 1 river,0.31,7.012100000000003,6.32,0.62,0.06,0.01
+dqn,2,all_road,All road,0.21,5.7564,5.6,0.79,0.0,0.0
+dqn,3,all_river,All river,0.89,12.704200000000004,8.48,0.0,0.11,0.0
+dqn,3,river_heavy,1 road / 3 rivers,0.69,10.640000000000002,7.79,0.13,0.15,0.03
+dqn,3,standard,Standard mixture,0.56,9.474500000000008,7.51,0.2,0.2,0.04
+dqn,3,road_heavy,3 roads / 1 river,0.34,7.1761,6.51,0.58,0.05,0.03
+dqn,3,all_road,All road,0.27,6.365300000000002,6.11,0.7,0.0,0.03
+dqn,4,all_river,All river,0.69,10.7236,7.68,0.0,0.31,0.0
+dqn,4,river_heavy,1 road / 3 rivers,0.52,8.896799999999997,6.93,0.18,0.29,0.01
+dqn,4,standard,Standard mixture,0.36,7.456100000000001,6.48,0.4,0.23,0.01
+dqn,4,road_heavy,3 roads / 1 river,0.25,5.975200000000002,5.85,0.63,0.08,0.04
+dqn,4,all_road,All road,0.26,5.968500000000003,5.67,0.72,0.0,0.02
+qrdqn,0,all_river,All river,0.6,10.151499999999997,7.67,0.0,0.4,0.0
+qrdqn,0,river_heavy,1 road / 3 rivers,0.47,8.8731,7.29,0.16,0.36,0.01
+qrdqn,0,standard,Standard mixture,0.24,6.649700000000004,6.48,0.42,0.33,0.01
+qrdqn,0,road_heavy,3 roads / 1 river,0.19,6.107600000000003,6.33,0.6,0.19,0.02
+qrdqn,0,all_road,All road,0.18,5.488900000000006,5.76,0.81,0.0,0.01
+qrdqn,1,all_river,All river,0.42,8.077300000000001,6.71,0.0,0.58,0.0
+qrdqn,1,river_heavy,1 road / 3 rivers,0.46,8.4519,6.9,0.2,0.34,0.0
+qrdqn,1,standard,Standard mixture,0.33,7.1338000000000035,6.57,0.37,0.27,0.03
+qrdqn,1,road_heavy,3 roads / 1 river,0.16,5.304100000000003,5.86,0.68,0.11,0.05
+qrdqn,1,all_road,All road,0.08,4.364600000000003,5.28,0.89,0.0,0.03
+qrdqn,2,all_river,All river,0.49,9.2488,7.43,0.0,0.51,0.0
+qrdqn,2,river_heavy,1 road / 3 rivers,0.37,7.996600000000005,7.0,0.21,0.41,0.01
+qrdqn,2,standard,Standard mixture,0.37,7.702900000000007,6.73,0.38,0.25,0.0
+qrdqn,2,road_heavy,3 roads / 1 river,0.24,6.208100000000003,6.09,0.59,0.17,0.0
+qrdqn,2,all_road,All road,0.15,4.872500000000005,5.26,0.85,0.0,0.0
+qrdqn,3,all_river,All river,0.61,10.1489,7.63,0.0,0.39,0.0
+qrdqn,3,river_heavy,1 road / 3 rivers,0.57,9.713400000000012,7.49,0.08,0.35,0.0
+qrdqn,3,standard,Standard mixture,0.41,7.638900000000006,6.7,0.23,0.3,0.06
+qrdqn,3,road_heavy,3 roads / 1 river,0.27,6.091300000000007,6.14,0.5,0.15,0.08
+qrdqn,3,all_road,All road,0.23,5.1185000000000045,5.38,0.69,0.0,0.08
+qrdqn,4,all_river,All river,0.63,10.260699999999996,7.63,0.0,0.37,0.0
+qrdqn,4,river_heavy,1 road / 3 rivers,0.45,8.453900000000003,7.13,0.26,0.25,0.04
+qrdqn,4,standard,Standard mixture,0.33,6.789800000000005,6.46,0.37,0.21,0.09
+qrdqn,4,road_heavy,3 roads / 1 river,0.14,4.4869000000000065,5.63,0.67,0.04,0.15
+qrdqn,4,all_road,All road,0.05,2.5178000000000065,4.68,0.69,0.0,0.26

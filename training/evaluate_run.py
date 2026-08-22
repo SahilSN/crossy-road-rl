@@ -284,6 +284,8 @@ def main():
             "standard",
             "road_heavy",
             "river_heavy",
+            "all_road",
+            "all_river",
         ],
         default="standard",
         help=(

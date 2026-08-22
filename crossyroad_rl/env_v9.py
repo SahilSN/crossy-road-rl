@@ -46,6 +46,8 @@ class CrossyRoadEnvV9(CrossyRoadEnvV8):
             "standard",
             "road_heavy",
             "river_heavy",
+            "all_road",
+            "all_river",
         }
 
         if composition not in valid_compositions:
@@ -318,7 +320,6 @@ class CrossyRoadEnvV9(CrossyRoadEnvV8):
                 "road",
                 "river",
             ]
-
             self.np_random.shuffle(types)
 
         elif self.composition == "river_heavy":
@@ -328,8 +329,28 @@ class CrossyRoadEnvV9(CrossyRoadEnvV8):
                 "river",
                 "river",
             ]
-
             self.np_random.shuffle(types)
+
+        elif self.composition == "all_road":
+            types = [
+                "road",
+                "road",
+                "road",
+                "road",
+            ]
+
+        elif self.composition == "all_river":
+            types = [
+                "river",
+                "river",
+                "river",
+                "river",
+            ]
+
+        else:
+            raise ValueError(
+                f"Unsupported composition: {self.composition}"
+            )
 
         self.hazard_rows = rows
 
