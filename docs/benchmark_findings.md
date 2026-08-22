@@ -937,3 +937,290 @@ This points to an important distinction:
 
 > Procedural training improves structural generalization, but does not guarantee robustness to all forms of distribution shift.
 
+
+---
+
+## 21. Speed Domain Randomization in v10
+
+After identifying sensitivity to faster hazard dynamics in v9, we introduced a training-time intervention to test whether broader exposure to speed variation could improve robustness.
+
+v10 preserves the v9 environment structure and mechanics, but randomizes the global hazard speed multiplier once per episode during training:
+
+```text
+speed_scale ~ Uniform(0.8, 1.2)
+```
+
+The sampled scale affects both:
+
+- road-car speeds
+- river-platform speeds
+
+Everything else remains unchanged relative to v9, including:
+
+- procedural hazard placement
+- hazard composition sampling
+- local2 observation
+- reward structure
+- action space
+- road and river mechanics
+
+The purpose of v10 is therefore not to create a new benchmark task, but to test whether moderate training-time domain randomization improves evaluation-time robustness.
+
+No evaluation-time randomization is used.
+
+Instead, v10-trained models are evaluated on fixed v9 environments at:
+
+```text
+0.8x
+1.0x
+1.2x
+1.4x
+```
+
+This allows direct comparison against the existing v9-trained policies.
+
+---
+
+## 22. v9 vs. v10 Speed Robustness
+
+All four algorithms were trained for 1M steps across five seeds under v10.
+
+The resulting policies were evaluated at the same four speed scales used in the original v9 speed-shift experiment.
+
+### Final 1M-step success rates
+
+| Algorithm | Training | 0.8x | 1.0x | 1.2x | 1.4x |
+|---|---|---:|---:|---:|---:|
+| PPO | v9 fixed-speed | 49.0% ± 4.2% | 50.0% ± 7.6% | 38.6% ± 6.9% | 27.8% ± 5.8% |
+| PPO | v10 randomized | 49.0% ± 2.4% | 48.6% ± 5.7% | 42.4% ± 4.5% | 29.8% ± 2.6% |
+| TRPO | v9 fixed-speed | 48.4% ± 10.9% | 49.0% ± 6.8% | 40.6% ± 7.5% | 28.6% ± 6.2% |
+| TRPO | v10 randomized | 51.6% ± 5.9% | 53.4% ± 5.7% | 41.6% ± 4.2% | 31.2% ± 3.2% |
+| DQN | v9 fixed-speed | 50.2% ± 9.7% | 46.4% ± 7.8% | 37.0% ± 4.9% | 31.0% ± 5.6% |
+| DQN | v10 randomized | 47.6% ± 15.3% | 44.8% ± 15.4% | 37.8% ± 11.5% | 29.6% ± 10.3% |
+| QR-DQN | v9 fixed-speed | 32.2% ± 3.3% | 33.6% ± 6.3% | 27.2% ± 8.2% | 27.0% ± 2.4% |
+| QR-DQN | v10 randomized | 38.0% ± 10.5% | 36.4% ± 12.5% | 29.2% ± 8.0% | 29.6% ± 5.8% |
+
+---
+
+## 23. Domain-Randomization Effect
+
+The absolute change in success rate from v9 to v10 is:
+
+| Algorithm | 0.8x | 1.0x | 1.2x | 1.4x |
+|---|---:|---:|---:|---:|
+| PPO | +0.0 pp | -1.4 pp | +3.8 pp | +2.0 pp |
+| TRPO | +3.2 pp | +4.4 pp | +1.0 pp | +2.6 pp |
+| DQN | -2.6 pp | -1.6 pp | +0.8 pp | -1.4 pp |
+| QR-DQN | +5.8 pp | +2.8 pp | +2.0 pp | +2.6 pp |
+
+The effect is therefore algorithm-dependent.
+
+### PPO
+
+PPO shows the most intervention-like behavior.
+
+Performance is nearly unchanged at 0.8x, slightly reduced at the nominal 1.0x condition, and improved under faster evaluation dynamics:
+
+```text
+1.2x: +3.8 pp
+1.4x: +2.0 pp
+```
+
+This suggests that broader speed exposure during training improves PPO robustness to timing compression while incurring only a small nominal-speed cost.
+
+### TRPO
+
+TRPO improves across every tested speed condition:
+
+```text
+0.8x: +3.2 pp
+1.0x: +4.4 pp
+1.2x: +1.0 pp
+1.4x: +2.6 pp
+```
+
+The largest gain occurs at 1.0x rather than under the strongest shift.
+
+This suggests that speed randomization may improve TRPO's policy more generally, rather than acting only as an out-of-distribution robustness intervention.
+
+### DQN
+
+DQN shows no consistent benefit.
+
+Its only improvement is:
+
+```text
+1.2x: +0.8 pp
+```
+
+while performance decreases slightly at:
+
+```text
+0.8x
+1.0x
+1.4x
+```
+
+The v10 DQN results also show substantially larger seed variance than v9.
+
+Speed domain randomization therefore does not appear to be a reliable robustness intervention for DQN under the current setup.
+
+### QR-DQN
+
+QR-DQN improves at every tested speed:
+
+```text
+0.8x: +5.8 pp
+1.0x: +2.8 pp
+1.2x: +2.0 pp
+1.4x: +2.6 pp
+```
+
+Although the gains are modest and variance increases, the direction of the effect is consistently positive.
+
+This suggests that broader training dynamics may reduce some of QR-DQN's sensitivity to the original narrow speed distribution.
+
+---
+
+## 24. Domain Randomization Improves but Does Not Solve Speed Sensitivity
+
+The combined result is:
+
+> Moderate speed domain randomization provides small robustness gains for PPO, TRPO, and QR-DQN, but does not consistently help DQN.
+
+The intervention does not eliminate the underlying speed-shift problem.
+
+All algorithms still degrade substantially as evaluation speed increases.
+
+For example:
+
+```text
+PPO v10:
+1.0x    48.6%
+1.4x    29.8%
+
+TRPO v10:
+1.0x    53.4%
+1.4x    31.2%
+```
+
+The faster-dynamics regime therefore remains significantly more difficult even after training-time randomization.
+
+The result should be interpreted as a modest mitigation rather than a complete robustness solution.
+
+---
+
+## 25. Failure Modes After Domain Randomization
+
+Road collisions remain the primary failure mode as evaluation speed increases.
+
+For PPO under v10:
+
+```text
+road collision rate
+
+1.0x    33.8%
+1.2x    41.0%
+1.4x    49.2%
+```
+
+For TRPO:
+
+```text
+1.0x    29.6%
+1.2x    35.6%
+1.4x    40.2%
+```
+
+The same qualitative pattern observed in v9 therefore remains present in v10.
+
+Training on variable speeds reduces performance loss somewhat for several algorithms, but does not remove the underlying road-timing vulnerability.
+
+This reinforces the earlier conclusion that high-speed road traversal is one of the dominant robustness bottlenecks in the procedural mixed-mechanics environment.
+
+---
+
+## 26. Speed Domain-Randomization Figure
+
+The v9-v10 comparison is visualized in:
+
+```text
+results/figures/domain_randomization/
+    v9_v10_speed_domain_randomization.png
+```
+
+The figure contains one panel per algorithm and compares:
+
+```text
+v9: fixed-speed training
+
+v10: speed-randomized training
+```
+
+across:
+
+```text
+0.8x
+1.0x
+1.2x
+1.4x
+```
+
+with error bars showing ±1 standard deviation across five training seeds.
+
+Supporting aggregated data are stored in:
+
+```text
+results/figures/domain_randomization/
+```
+
+including:
+
+```text
+v9_v10_speed_comparison_raw.csv
+v9_v10_speed_comparison_summary.csv
+v9_v10_speed_comparison_effect.csv
+v9_v10_speed_domain_randomization.png
+```
+
+---
+
+## 27. Updated Robustness Findings
+
+The benchmark now supports several increasingly strong conclusions about generalization and robustness.
+
+### Procedural variation improves structural transfer
+
+v9-trained policies transfer substantially better to fixed v8 than v8-trained policies transfer to procedural v9.
+
+### Faster dynamics remain a major weakness
+
+All algorithms degrade as hazard speed increases beyond the standard training regime.
+
+### Road mechanics dominate speed sensitivity
+
+The increase in failures under faster dynamics is primarily associated with road collisions rather than drowning.
+
+### Composition affects task difficulty strongly
+
+Road-heavy episodes are consistently harder than river-heavy episodes.
+
+### Domain randomization provides partial mitigation
+
+Training across a broader speed range improves robustness for several algorithms, but the effect is modest and algorithm-dependent.
+
+In particular:
+
+```text
+PPO      modest positive effect
+TRPO     consistent positive effect
+QR-DQN   consistent positive effect
+DQN      no consistent benefit
+```
+
+The resulting picture is therefore not that procedural training or domain randomization automatically solves out-of-distribution robustness.
+
+Instead:
+
+> Broader training distributions improve some forms of generalization, but robustness remains strongly dependent on algorithm, mechanic, and shift type.
+

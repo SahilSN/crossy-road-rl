@@ -13,6 +13,7 @@ from crossyroad_rl.env_v6 import CrossyRoadEnvV6
 from crossyroad_rl.env_v7 import CrossyRoadEnvV7
 from crossyroad_rl.env_v8 import CrossyRoadEnvV8
 from crossyroad_rl.env_v9 import CrossyRoadEnvV9
+from crossyroad_rl.env_v10 import CrossyRoadEnvV10
 
 
 ENVIRONMENTS = {
@@ -31,6 +32,7 @@ ENVIRONMENTS = {
     "v7": CrossyRoadEnvV7,
     "v8": CrossyRoadEnvV8,
     "v9": CrossyRoadEnvV9,
+    "v10": CrossyRoadEnvV10,
 }
 
 
@@ -87,8 +89,10 @@ def evaluate_model(
 
     env_class = ENVIRONMENTS[env_name]
 
-    if env_name == "v9":
-        env = env_class(
+    if env_name in {"v9", "v10"}:
+        # v10 models are trained with randomized speeds, but evaluation
+        # is performed in fixed-speed v9 for controlled robustness tests.
+        env = CrossyRoadEnvV9(
             speed_scale=speed_scale,
             composition=composition,
         )
@@ -235,7 +239,7 @@ def main():
 
     parser.add_argument(
         "--env",
-        choices=["v3", "v4", "v5", "v6_local1", "v6_local3", "v7", "v8", "v9"],
+        choices=["v3", "v4", "v5", "v6_local1", "v6_local3", "v7", "v8", "v9", "v10"],
         default="v3",
         help="Environment version used for evaluation.",
     )
@@ -373,7 +377,7 @@ def main():
     if not rows:
         raise SystemExit("No checkpoints found.")
 
-    if args.env == "v9":
+    if args.env in {"v9", "v10"}:
         shifted_speed = args.speed_scale != 1.0
         shifted_composition = (
             args.composition != "standard"
